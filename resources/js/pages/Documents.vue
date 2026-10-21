@@ -10,6 +10,7 @@ import TwoFactorSetup from '../components/TwoFactorSetup.vue';
 import { dateTime, DOC_ICONS, DOC_TYPES, toLocalInput } from '../format';
 import { appendImages } from '../images';
 import { loadMembers, store, toast } from '../store';
+import { t } from '../i18n';
 
 const route = useRoute();
 const state = ref('loading'); // loading | setup | challenge | ready
@@ -114,14 +115,14 @@ async function save() {
 }
 
 async function remove() {
-    if (!confirm('Удалить документ и файлы?')) return;
+    if (!confirm(t('Удалить документ и файлы?'))) return;
     await api.delete(`/documents/${editing.value.id}`);
     editing.value = null;
     load();
 }
 
 async function removeFile(a) {
-    if (!confirm(`Удалить файл ${a.original_name}?`)) return;
+    if (!confirm(t('Удалить файл :p0?', { p0: a.original_name }))) return;
     await api.delete(`/attachments/${a.id}`);
     editing.value.attachments = editing.value.attachments.filter((x) => x.id !== a.id);
     load();
@@ -129,46 +130,46 @@ async function removeFile(a) {
 
 function copy(text) {
     navigator.clipboard?.writeText(text);
-    toast(`Скопировано: ${text}`);
+    toast(t('Скопировано: :p0', { p0: text }));
 }
 </script>
 
 <template>
     <div class="space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <h1 class="page-title flex items-center gap-2"><Icon name="lock" /> Билеты и брони</h1>
-            <button v-if="state === 'ready' && store.user.can_write" class="btn-primary" @click="openEdit()"><Icon name="plus" /> Добавить</button>
+            <h1 class="page-title flex items-center gap-2"><Icon name="lock" /> {{ $t('Билеты и брони') }}</h1>
+            <button v-if="state === 'ready' && store.user.can_write" class="btn-primary" @click="openEdit()"><Icon name="plus" /> {{ $t('Добавить') }}</button>
         </div>
 
-        <p v-if="state === 'loading'" class="text-slate-600">Загрузка…</p>
+        <p v-if="state === 'loading'" class="text-slate-600">{{ $t('Загрузка…') }}</p>
 
         <div v-else-if="state === 'setup'" class="card mx-auto max-w-lg">
-            <h2 class="mb-3 text-xl font-bold">Включите двухфакторную защиту</h2>
+            <h2 class="mb-3 text-xl font-bold">{{ $t('Включите двухфакторную защиту') }}</h2>
             <TwoFactorSetup @enabled="load" />
         </div>
 
         <form v-else-if="state === 'challenge'" class="card mx-auto max-w-md space-y-4" @submit.prevent="verify">
-            <h2 class="flex items-center gap-2 text-xl font-bold"><Icon name="key-round" /> Подтвердите вход</h2>
-            <p>Раздел с документами защищён. Введите код из приложения-аутентификатора или резервный код.</p>
+            <h2 class="flex items-center gap-2 text-xl font-bold"><Icon name="key-round" /> {{ $t('Подтвердите вход') }}</h2>
+            <p>{{ $t('Раздел с документами защищён. Введите код из приложения-аутентификатора или резервный код.') }}</p>
             <input v-model="code" class="field text-center text-2xl tracking-widest" inputmode="numeric" autocomplete="one-time-code"
-                   aria-label="Код подтверждения" required>
+                   :aria-label="$t('Код подтверждения')" required>
             <p v-if="codeError" class="field-error" role="alert">{{ codeError }}</p>
-            <button class="btn-primary w-full text-lg">Открыть документы</button>
+            <button class="btn-primary w-full text-lg">{{ $t('Открыть документы') }}</button>
         </form>
 
         <template v-else>
             <div class="flex flex-wrap gap-3">
                 <label class="relative min-w-0 flex-1 basis-64">
-                    <span class="sr-only">Поиск</span>
+                    <span class="sr-only">{{ $t('Поиск') }}</span>
                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"><Icon name="search" /></span>
-                    <input v-model="search" class="field pl-11" placeholder="Номер рейса, бронь, город…">
+                    <input v-model="search" class="field pl-11" :placeholder="$t('Номер рейса, бронь, город…')">
                 </label>
-                <select v-model="tripFilter" class="field w-auto" aria-label="Поездка">
-                    <option value="">Все поездки</option>
+                <select v-model="tripFilter" class="field w-auto" :aria-label="$t('Поездка')">
+                    <option value="">{{ $t('Все поездки') }}</option>
                     <option v-for="t in trips" :key="t.id" :value="t.id">{{ t.title }}</option>
                 </select>
                 <label class="flex min-h-12 items-center gap-2 rounded-xl bg-white px-4 font-semibold ring-2 ring-slate-300">
-                    <input v-model="upcoming" type="checkbox" class="h-5 w-5"> Только предстоящие
+                    <input v-model="upcoming" type="checkbox" class="h-5 w-5"> {{ $t('Только предстоящие') }}
                 </label>
             </div>
 
@@ -183,7 +184,7 @@ function copy(text) {
                             <p class="text-slate-600">{{ DOC_TYPES[d.type] }}<template v-if="d.carrier"> · {{ d.carrier }}</template></p>
                         </div>
                         <Avatar v-if="d.traveller" :user="d.traveller" size="sm" />
-                        <button v-if="store.user.can_write" class="btn-ghost px-3" aria-label="Изменить" @click="openEdit(d)"><Icon name="pencil" /></button>
+                        <button v-if="store.user.can_write" class="btn-ghost px-3" :aria-label="$t('Изменить')" @click="openEdit(d)"><Icon name="pencil" /></button>
                     </div>
 
                     <div v-if="d.from_place || d.to_place" class="flex items-center gap-2 text-xl font-bold">
@@ -192,19 +193,19 @@ function copy(text) {
 
                     <dl class="grid grid-cols-2 gap-2">
                         <div v-if="d.reference" class="rounded-xl bg-slate-50 p-2">
-                            <dt class="text-sm text-slate-600">Рейс / номер</dt>
+                            <dt class="text-sm text-slate-600">{{ $t('Рейс / номер') }}</dt>
                             <dd><button class="text-xl font-bold tracking-wide" @click="copy(d.reference)">{{ d.reference }}</button></dd>
                         </div>
                         <div v-if="d.booking_code" class="rounded-xl bg-slate-50 p-2">
-                            <dt class="text-sm text-slate-600">Код брони</dt>
+                            <dt class="text-sm text-slate-600">{{ $t('Код брони') }}</dt>
                             <dd><button class="text-xl font-bold tracking-wide" @click="copy(d.booking_code)">{{ d.booking_code }}</button></dd>
                         </div>
                         <div v-if="d.departs_at" class="rounded-xl bg-slate-50 p-2">
-                            <dt class="text-sm text-slate-600">Отправление</dt>
+                            <dt class="text-sm text-slate-600">{{ $t('Отправление') }}</dt>
                             <dd class="font-bold">{{ dateTime(d.departs_at) }}</dd>
                         </div>
                         <div v-if="d.arrives_at" class="rounded-xl bg-slate-50 p-2">
-                            <dt class="text-sm text-slate-600">Прибытие</dt>
+                            <dt class="text-sm text-slate-600">{{ $t('Прибытие') }}</dt>
                             <dd class="font-bold">{{ dateTime(d.arrives_at) }}</dd>
                         </div>
                     </dl>
@@ -216,110 +217,110 @@ function copy(text) {
                     </div>
                     <div v-if="d.type === 'flight' && d.reference && store.config.flight_status_enabled">
                         <button class="btn-secondary" :disabled="flight[d.id] === 'loading'" @click="checkFlight(d)">
-                            <Icon name="refresh-cw" /> {{ flight[d.id] === 'loading' ? 'Проверяем…' : 'Статус рейса' }}
+                            <Icon name="refresh-cw" /> {{ flight[d.id] === 'loading' ? $t('Проверяем…') : $t('Статус рейса') }}
                         </button>
                         <div v-if="typeof flight[d.id] === 'object'" class="mt-2 space-y-1 rounded-xl p-3" role="status"
                              :class="flight[d.id].status === 'Canceled' ? 'bg-red-100 text-red-900' : flight[d.id].delay_minutes ? 'bg-amber-100 text-amber-950' : 'bg-emerald-50 text-emerald-950'">
-                            <p class="text-lg font-bold">{{ flight[d.id].status_label }}<template v-if="flight[d.id].delay_minutes"> · задержка {{ flight[d.id].delay_minutes }} мин</template></p>
+                            <p class="text-lg font-bold">{{ flight[d.id].status_label }}<template v-if="flight[d.id].delay_minutes"> {{ $t('· задержка :p0 мин', { p0: flight[d.id].delay_minutes }) }}</template></p>
                             <p>
-                                Вылет {{ flight[d.id].departure.airport }}:
+                                {{ $t('Вылет :p0:', { p0: flight[d.id].departure.airport }) }}
                                 <b>{{ dateTime(flight[d.id].departure.revised || flight[d.id].departure.scheduled) }}</b>
-                                <template v-if="flight[d.id].departure.terminal"> · терминал {{ flight[d.id].departure.terminal }}</template>
-                                <template v-if="flight[d.id].departure.gate"> · выход {{ flight[d.id].departure.gate }}</template>
+                                <template v-if="flight[d.id].departure.terminal"> {{ $t('· терминал :p0', { p0: flight[d.id].departure.terminal }) }}</template>
+                                <template v-if="flight[d.id].departure.gate"> {{ $t('· выход :p0', { p0: flight[d.id].departure.gate }) }}</template>
                             </p>
                             <p>
-                                Прилёт {{ flight[d.id].arrival.airport }}:
+                                {{ $t('Прилёт :p0:', { p0: flight[d.id].arrival.airport }) }}
                                 <b>{{ dateTime(flight[d.id].arrival.revised || flight[d.id].arrival.scheduled) }}</b>
-                                <template v-if="flight[d.id].arrival.baggage_belt"> · лента {{ flight[d.id].arrival.baggage_belt }}</template>
+                                <template v-if="flight[d.id].arrival.baggage_belt"> {{ $t('· лента :p0', { p0: flight[d.id].arrival.baggage_belt }) }}</template>
                             </p>
-                            <p class="text-sm opacity-80">Проверено {{ dateTime(flight[d.id].checked_at) }}</p>
+                            <p class="text-sm opacity-80">{{ $t('Проверено :p0', { p0: dateTime(flight[d.id].checked_at) }) }}</p>
                         </div>
                         <p v-else-if="flight[d.id] && flight[d.id] !== 'loading'" class="field-error mt-2">{{ flight[d.id] }}</p>
                     </div>
-                    <p v-if="d.trip" class="text-sm text-slate-600">Поездка: {{ d.trip.title }}</p>
+                    <p v-if="d.trip" class="text-sm text-slate-600">{{ $t('Поездка: :p0', { p0: d.trip.title }) }}</p>
                 </article>
             </div>
-            <EmptyState v-if="!docs.length" icon="file-text" text="Документов нет. Загрузите посадочные талоны и брони — их увидит вся семья." />
+            <EmptyState v-if="!docs.length" icon="file-text" :text="$t('Документов нет. Загрузите посадочные талоны и брони — их увидит вся семья.')" />
         </template>
 
-        <Modal v-if="editing" :title="editing.id ? 'Изменить документ' : 'Новый билет / бронь'" wide @close="editing = null">
+        <Modal v-if="editing" :title="editing.id ? $t('Изменить документ') : $t('Новый билет / бронь')" wide @close="editing = null">
             <form class="space-y-4" @submit.prevent="save">
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div class="sm:col-span-2">
-                        <label class="field-label" for="d-title">Название</label>
-                        <input id="d-title" v-model="form.title" class="field" required placeholder="Одесса — Кишинёв, мама">
+                        <label class="field-label" for="d-title">{{ $t('Название') }}</label>
+                        <input id="d-title" v-model="form.title" class="field" required :placeholder="$t('Одесса — Кишинёв, мама')">
                         <p v-if="errors.title" class="field-error">{{ errors.title }}</p>
                     </div>
                     <div>
-                        <label class="field-label" for="d-type">Тип</label>
+                        <label class="field-label" for="d-type">{{ $t('Тип') }}</label>
                         <select id="d-type" v-model="form.type" class="field">
                             <option v-for="(l, k) in DOC_TYPES" :key="k" :value="k">{{ l }}</option>
                         </select>
                     </div>
                     <div>
-                        <label class="field-label" for="d-carrier">Перевозчик / отель</label>
+                        <label class="field-label" for="d-carrier">{{ $t('Перевозчик / отель') }}</label>
                         <input id="d-carrier" v-model="form.carrier" class="field">
                     </div>
                     <div>
-                        <label class="field-label" for="d-ref">Номер рейса / автобуса</label>
+                        <label class="field-label" for="d-ref">{{ $t('Номер рейса / автобуса') }}</label>
                         <input id="d-ref" v-model="form.reference" class="field uppercase" placeholder="SU 1234">
                     </div>
                     <div>
-                        <label class="field-label" for="d-code">Код брони</label>
+                        <label class="field-label" for="d-code">{{ $t('Код брони') }}</label>
                         <input id="d-code" v-model="form.booking_code" class="field uppercase">
                     </div>
                     <div>
-                        <label class="field-label" for="d-from">Откуда</label>
+                        <label class="field-label" for="d-from">{{ $t('Откуда') }}</label>
                         <input id="d-from" v-model="form.from_place" class="field">
                     </div>
                     <div>
-                        <label class="field-label" for="d-to">Куда (или пункт пересадки)</label>
+                        <label class="field-label" for="d-to">{{ $t('Куда (или пункт пересадки)') }}</label>
                         <input id="d-to" v-model="form.to_place" class="field">
                     </div>
                     <div>
-                        <label class="field-label" for="d-dep">Отправление</label>
+                        <label class="field-label" for="d-dep">{{ $t('Отправление') }}</label>
                         <input id="d-dep" v-model="form.departs_at" type="datetime-local" class="field">
                     </div>
                     <div>
-                        <label class="field-label" for="d-arr">Прибытие</label>
+                        <label class="field-label" for="d-arr">{{ $t('Прибытие') }}</label>
                         <input id="d-arr" v-model="form.arrives_at" type="datetime-local" class="field">
                     </div>
                     <div>
-                        <label class="field-label" for="d-who">Пассажир</label>
+                        <label class="field-label" for="d-who">{{ $t('Пассажир') }}</label>
                         <select id="d-who" v-model="form.traveller_id" class="field">
                             <option value="">—</option>
                             <option v-for="m in store.members" :key="m.id" :value="m.id">{{ m.name }}</option>
                         </select>
                     </div>
                     <div>
-                        <label class="field-label" for="d-trip">Поездка</label>
+                        <label class="field-label" for="d-trip">{{ $t('Поездка') }}</label>
                         <select id="d-trip" v-model="form.trip_id" class="field">
                             <option value="">—</option>
                             <option v-for="t in trips" :key="t.id" :value="t.id">{{ t.title }}</option>
                         </select>
                     </div>
                     <div class="sm:col-span-2">
-                        <label class="field-label" for="d-notes">Заметки (терминал, багаж, место)</label>
+                        <label class="field-label" for="d-notes">{{ $t('Заметки (терминал, багаж, место)') }}</label>
                         <textarea id="d-notes" v-model="form.notes" class="field" rows="2" />
                     </div>
                 </div>
                 <div>
-                    <span class="field-label">Файлы (PDF, фото, .pkpass)</span>
+                    <span class="field-label">{{ $t('Файлы (PDF, фото, .pkpass)') }}</span>
                     <ul v-if="editing.attachments?.length" class="mb-2 space-y-1">
                         <li v-for="a in editing.attachments" :key="a.id" class="flex items-center gap-2">
                             <Icon name="paperclip" /> <span class="flex-1">{{ a.original_name }}</span>
-                            <button type="button" class="btn-ghost px-3" aria-label="Удалить файл" @click="removeFile(a)"><Icon name="x" /></button>
+                            <button type="button" class="btn-ghost px-3" :aria-label="$t('Удалить файл')" @click="removeFile(a)"><Icon name="x" /></button>
                         </li>
                     </ul>
                     <label class="btn-secondary cursor-pointer">
-                        <Icon name="paperclip" /> Выбрать файлы
+                        <Icon name="paperclip" /> {{ $t('Выбрать файлы') }}
                         <input type="file" multiple class="sr-only" accept="application/pdf,image/*,.pkpass" @change="files = [...$event.target.files]">
                     </label>
-                    <p v-if="files.length" class="mt-1 text-sm">Выбрано: {{ files.map((f) => f.name).join(', ') }}</p>
+                    <p v-if="files.length" class="mt-1 text-sm">{{ $t('Выбрано: :p0', { p0: files.map((f) => f.name).join(', ') }) }}</p>
                     <p v-if="errors['files.0']" class="field-error">{{ errors['files.0'] }}</p>
                 </div>
-                <button class="btn-primary w-full text-lg" :disabled="busy">{{ busy ? 'Сохранение…' : 'Сохранить' }}</button>
-                <button v-if="editing.id" type="button" class="btn-ghost w-full text-red-700" @click="remove"><Icon name="trash" /> Удалить</button>
+                <button class="btn-primary w-full text-lg" :disabled="busy">{{ busy ? $t('Сохранение…') : $t('Сохранить') }}</button>
+                <button v-if="editing.id" type="button" class="btn-ghost w-full text-red-700" @click="remove"><Icon name="trash" /> {{ $t('Удалить') }}</button>
             </form>
         </Modal>
     </div>

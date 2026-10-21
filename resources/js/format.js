@@ -1,13 +1,15 @@
-const locale = 'ru-RU';
+import { intlLocale, t } from './i18n';
+
+const locale = intlLocale();
 
 export function date(value) {
     if (!value) return '';
     return new Date(value).toLocaleDateString(locale, { day: 'numeric', month: 'long' });
 }
 
-/** "Октябрь 2026" — month heading (CSS capitalize would also turn "г." into "Г."). */
+/** "Октябрь 2026" — month heading (CSS capitalize would also turn "г."/"р." into "Г."). */
 export function monthYear(value) {
-    const s = new Date(value).toLocaleDateString(locale, { month: 'long', year: 'numeric' }).replace(/\s*г\.$/, '');
+    const s = new Date(value).toLocaleDateString(locale, { month: 'long', year: 'numeric' }).replace(/\s*[гр]\.$/, '');
     return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
@@ -26,13 +28,13 @@ export function ago(value) {
     if (!value) return '';
     const d = new Date(value);
     const diff = (Date.now() - d.getTime()) / 1000;
-    if (diff < 60) return 'только что';
-    if (diff < 3600) return `${Math.floor(diff / 60)} мин назад`;
+    if (diff < 60) return t('только что');
+    if (diff < 3600) return t(':p0 мин назад', { p0: Math.floor(diff / 60) });
     const today = new Date();
-    if (d.toDateString() === today.toDateString()) return `сегодня в ${time(d)}`;
+    if (d.toDateString() === today.toDateString()) return t('сегодня в :p0', { p0: time(d) });
     const yesterday = new Date(today);
     yesterday.setDate(today.getDate() - 1);
-    if (d.toDateString() === yesterday.toDateString()) return `вчера в ${time(d)}`;
+    if (d.toDateString() === yesterday.toDateString()) return t('вчера в :p0', { p0: time(d) });
     return dateTime(d);
 }
 
@@ -47,10 +49,10 @@ export function daysUntil(ymd) {
 
 export function dueText(ymd) {
     const n = daysUntil(ymd);
-    if (n < 0) return `просрочено на ${-n} дн.`;
-    if (n === 0) return 'сегодня';
-    if (n === 1) return 'завтра';
-    return `через ${n} дн.`;
+    if (n < 0) return t('просрочено на :p0 дн.', { p0: -n });
+    if (n === 0) return t('сегодня');
+    if (n === 1) return t('завтра');
+    return t('через :p0 дн.', { p0: n });
 }
 
 export function money(value) {
@@ -65,9 +67,9 @@ export function num(value) {
 }
 
 export function bytes(n) {
-    if (n < 1024) return `${n} Б`;
-    if (n < 1048576) return `${(n / 1024).toFixed(0)} КБ`;
-    return `${(n / 1048576).toFixed(1)} МБ`;
+    if (n < 1024) return t(':p0 Б', { p0: n });
+    if (n < 1048576) return t(':p0 КБ', { p0: (n / 1024).toFixed(0) });
+    return t(':p0 МБ', { p0: (n / 1048576).toFixed(1) });
 }
 
 /** Value for <input type="datetime-local"> from an ISO string. */
@@ -78,8 +80,8 @@ export function toLocalInput(value) {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export const STATUS_LABELS = { todo: 'Нужно сделать', in_progress: 'В работе', done: 'Готово' };
-export const PRIORITY_LABELS = { low: 'Не срочно', normal: 'Обычная', high: 'Срочно' };
-export const MAINTENANCE_KINDS = { consumable: 'Расходники', bill: 'Счёт / оплата', check: 'Проверка', other: 'Другое' };
-export const DOC_TYPES = { flight: 'Авиабилет', bus: 'Автобус', train: 'Поезд', hotel: 'Жильё', other: 'Другое' };
+export const STATUS_LABELS = { todo: t('Нужно сделать'), in_progress: t('В работе'), done: t('Готово') };
+export const PRIORITY_LABELS = { low: t('Не срочно'), normal: t('Обычная'), high: t('Срочно') };
+export const MAINTENANCE_KINDS = { consumable: t('Расходники'), bill: t('Счёт / оплата'), check: t('Проверка'), other: t('Другое') };
+export const DOC_TYPES = { flight: t('Авиабилет'), bus: t('Автобус'), train: t('Поезд'), hotel: t('Жильё'), other: t('Другое') };
 export const DOC_ICONS = { flight: 'plane', bus: 'bus', train: 'train-front', hotel: 'bed', other: 'file-text' };

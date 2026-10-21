@@ -166,6 +166,6 @@ class FamilyController extends Controller
     private function ensureAnotherAdmin(FamilyMember $member): void
     {
         $admins = FamilyMember::where('family_id', $member->family_id)->where('role', Role::Admin)->count();
-        abort_if($admins <= 1, 422, 'В семье должен остаться хотя бы один администратор.');
+        abort_if($admins <= 1, 422, __('В семье должен остаться хотя бы один администратор.'));
     }
 }

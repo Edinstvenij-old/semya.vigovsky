@@ -8,6 +8,7 @@ import Modal from '../components/Modal.vue';
 import { ago } from '../format';
 import { onLive } from '../live';
 import { store, toast } from '../store';
+import { t } from '../i18n';
 
 const router = useRouter();
 const threads = ref([]);
@@ -15,8 +16,8 @@ const creating = ref(false);
 const form = reactive({ title: '', icon: 'message-circle', message: '' });
 
 const ICONS = [
-    ['message-circle', 'Разговор'], ['shopping-cart', 'Покупка'], ['plane', 'Поездка'],
-    ['home', 'Дом'], ['wrench', 'Ремонт'], ['calendar-days', 'Встреча'],
+    ['message-circle', t('Разговор')], ['shopping-cart', t('Покупка')], ['plane', t('Поездка')],
+    ['home', t('Дом')], ['wrench', t('Ремонт')], ['calendar-days', t('Встреча')],
 ];
 
 async function load() {
@@ -44,10 +45,10 @@ async function create() {
 <template>
     <div class="space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <h1 class="page-title">Обсуждения</h1>
-            <button v-if="store.user.can_write" class="btn-primary" @click="creating = true"><Icon name="plus" /> Новая тема</button>
+            <h1 class="page-title">{{ $t('Обсуждения') }}</h1>
+            <button v-if="store.user.can_write" class="btn-primary" @click="creating = true"><Icon name="plus" /> {{ $t('Новая тема') }}</button>
         </div>
-        <p class="text-slate-600">Каждая тема — отдельный разговор: покупка, визит, поездка. Так ничего не теряется в общем потоке.</p>
+        <p class="text-slate-600">{{ $t('Каждая тема — отдельный разговор: покупка, визит, поездка. Так ничего не теряется в общем потоке.') }}</p>
 
         <ul class="space-y-2">
             <li v-for="t in threads" :key="t.id">
@@ -64,7 +65,7 @@ async function create() {
                         </div>
                         <p class="truncate text-slate-600" :class="t.unread_count ? 'font-semibold text-slate-900' : ''">
                             <template v-if="t.last_message">{{ t.last_message.user?.name }}: {{ t.last_message.body }}</template>
-                            <template v-else>Пока без сообщений</template>
+                            <template v-else>{{ $t('Пока без сообщений') }}</template>
                         </p>
                     </div>
                     <div class="flex max-w-[35%] flex-col items-end gap-1 text-right">
@@ -74,16 +75,16 @@ async function create() {
                 </RouterLink>
             </li>
         </ul>
-        <EmptyState v-if="!threads.length" icon="message-circle" text="Тем пока нет" />
+        <EmptyState v-if="!threads.length" icon="message-circle" :text="$t('Тем пока нет')" />
 
-        <Modal v-if="creating" title="Новая тема" @close="creating = false">
+        <Modal v-if="creating" :title="$t('Новая тема')" @close="creating = false">
             <form class="space-y-4" @submit.prevent="create">
                 <div>
-                    <label class="field-label" for="th-title">О чём поговорим?</label>
-                    <input id="th-title" v-model="form.title" class="field" required placeholder="Подарок дедушке на юбилей">
+                    <label class="field-label" for="th-title">{{ $t('О чём поговорим?') }}</label>
+                    <input id="th-title" v-model="form.title" class="field" required :placeholder="$t('Подарок дедушке на юбилей')">
                 </div>
                 <fieldset>
-                    <legend class="field-label">Значок</legend>
+                    <legend class="field-label">{{ $t('Значок') }}</legend>
                     <div class="grid grid-cols-3 gap-2">
                         <label v-for="[icon, label] in ICONS" :key="icon"
                                class="flex min-h-12 cursor-pointer items-center gap-2 rounded-xl px-3 ring-2"
@@ -94,10 +95,10 @@ async function create() {
                     </div>
                 </fieldset>
                 <div>
-                    <label class="field-label" for="th-msg">Первое сообщение</label>
+                    <label class="field-label" for="th-msg">{{ $t('Первое сообщение') }}</label>
                     <textarea id="th-msg" v-model="form.message" class="field" rows="3" />
                 </div>
-                <button class="btn-primary w-full text-lg">Создать</button>
+                <button class="btn-primary w-full text-lg">{{ $t('Создать') }}</button>
             </form>
         </Modal>
     </div>

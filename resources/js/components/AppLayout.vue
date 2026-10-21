@@ -5,6 +5,7 @@ import { api, clearOutbox, net } from '../api';
 import { clearOfflineCache, simpleMode, stopPolling, store } from '../store';
 import Avatar from './Avatar.vue';
 import Icon from './Icon.vue';
+import { t } from '../i18n';
 
 const router = useRouter();
 const route = useRoute();
@@ -12,20 +13,20 @@ const menuOpen = ref(false);
 const menuPanel = ref(null);
 
 const nav = computed(() => [
-    { to: '/', label: 'Главная', icon: 'home', exact: true },
-    { to: '/tasks', label: 'Задачи', icon: 'list-checks', hidden: simpleMode() },
-    { to: '/home', label: 'Дом', icon: 'calendar-days' },
-    { to: '/travel', label: 'Поездки', icon: 'plane' },
-    { to: '/threads', label: 'Чаты', icon: 'message-circle', badge: store.counts.unread_messages },
+    { to: '/', label: t('Главная'), icon: 'home', exact: true },
+    { to: '/tasks', label: t('Задачи'), icon: 'list-checks', hidden: simpleMode() },
+    { to: '/home', label: t('Дом'), icon: 'calendar-days' },
+    { to: '/travel', label: t('Поездки'), icon: 'plane' },
+    { to: '/threads', label: t('Чаты'), icon: 'message-circle', badge: store.counts.unread_messages },
 ].filter((i) => !i.hidden));
 
 const secondary = computed(() => [
-    { to: '/notifications', label: 'Уведомления', icon: 'bell', badge: store.counts.unread_notifications },
-    { to: '/photos', label: 'Фотоальбом', icon: 'image' },
-    { to: '/shopping', label: 'Список покупок', icon: 'shopping-cart', badge: store.counts.shopping_open },
-    { to: '/documents', label: 'Билеты и брони', icon: 'lock' },
-    { to: '/family', label: 'Семья', icon: 'users' },
-    { to: '/settings', label: 'Настройки', icon: 'settings' },
+    { to: '/notifications', label: t('Уведомления'), icon: 'bell', badge: store.counts.unread_notifications },
+    { to: '/photos', label: t('Фотоальбом'), icon: 'image' },
+    { to: '/shopping', label: t('Список покупок'), icon: 'shopping-cart', badge: store.counts.shopping_open },
+    { to: '/documents', label: t('Билеты и брони'), icon: 'lock' },
+    { to: '/family', label: t('Семья'), icon: 'users' },
+    { to: '/settings', label: t('Настройки'), icon: 'settings' },
 ]);
 
 // Mobile burger menu: secondary pages live here so the top bar never crowds the family name.
@@ -50,7 +51,7 @@ document.addEventListener('keydown', onKey);
 onBeforeUnmount(() => document.removeEventListener('keydown', onKey));
 
 async function logout() {
-    if (net.queued && !confirm(`Есть неотправленное (${net.queued}). Если выйти сейчас, оно потеряется. Выйти?`)) return;
+    if (net.queued && !confirm(t('Есть неотправленное (:p0). Если выйти сейчас, оно потеряется. Выйти?', { p0: net.queued }))) return;
     closeMenu();
     clearOutbox();
     clearOfflineCache();
@@ -71,7 +72,7 @@ function openUrgent() {
 <template>
     <div class="min-h-screen md:flex">
         <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:rounded-lg focus:bg-white focus:p-3">
-            Перейти к содержимому
+            {{ $t('Перейти к содержимому') }}
         </a>
 
         <!-- Desktop sidebar -->
@@ -83,7 +84,7 @@ function openUrgent() {
                     <span class="block text-sm text-red-200">{{ store.user?.family?.name }}</span>
                 </span>
             </RouterLink>
-            <nav class="flex flex-1 flex-col gap-1" aria-label="Основное меню">
+            <nav class="flex flex-1 flex-col gap-1" :aria-label="$t('Основное меню')">
                 <RouterLink
                     v-for="item in [...nav, ...secondary]"
                     :key="item.to"
@@ -103,7 +104,7 @@ function openUrgent() {
                     <div class="truncate font-semibold">{{ store.user?.name }}</div>
                     <div class="text-sm text-red-200">{{ store.user?.role_label }}</div>
                 </div>
-                <button class="rounded-lg p-2 hover:bg-white/10" aria-label="Выйти" title="Выйти" @click="logout">
+                <button class="rounded-lg p-2 hover:bg-white/10" :aria-label="$t('Выйти')" :title="$t('Выйти')" @click="logout">
                     <Icon name="log-out" />
                 </button>
             </div>
@@ -118,10 +119,10 @@ function openUrgent() {
                     <span class="truncate">{{ store.user?.family?.name || store.config.app_name }}</span>
                 </RouterLink>
                 <button class="relative flex min-h-12 min-w-12 shrink-0 items-center justify-center rounded-xl hover:bg-white/10"
-                        :aria-expanded="menuOpen" aria-controls="mobile-menu" aria-label="Меню" @click="openMenu">
+                        :aria-expanded="menuOpen" aria-controls="mobile-menu" :aria-label="$t('Меню')" @click="openMenu">
                     <Icon name="menu" size="1.6em" />
                     <span v-if="store.counts.unread_notifications" class="absolute right-1 top-1 h-3 w-3 rounded-full bg-amber-400 ring-2 ring-brand-900">
-                        <span class="sr-only">есть непрочитанные уведомления</span>
+                        <span class="sr-only">{{ $t('есть непрочитанные уведомления') }}</span>
                     </span>
                 </button>
             </header>
@@ -129,14 +130,14 @@ function openUrgent() {
             <!-- Mobile burger menu -->
             <div v-if="menuOpen" class="fixed inset-0 z-50 flex justify-end bg-black/50 md:hidden" @click.self="closeMenu">
                 <nav id="mobile-menu" ref="menuPanel" class="flex h-full w-full max-w-sm flex-col overflow-y-auto bg-white p-4 shadow-2xl"
-                     :style="{ fontSize: 'min(1.125rem, 6vw)', overflowWrap: 'normal' }" aria-label="Дополнительное меню">
+                     :style="{ fontSize: 'min(1.125rem, 6vw)', overflowWrap: 'normal' }" :aria-label="$t('Дополнительное меню')">
                     <div class="mb-4 flex items-center gap-3">
                         <Avatar :user="store.user" />
                         <div class="min-w-0 flex-1">
                             <div class="font-bold leading-tight">{{ store.user?.name }}</div>
                             <div class="text-slate-600" style="font-size: 0.85em">{{ store.user?.role_label }} · {{ store.user?.family?.name }}</div>
                         </div>
-                        <button class="btn-ghost shrink-0 px-3" aria-label="Закрыть меню" @click="closeMenu"><Icon name="x" /></button>
+                        <button class="btn-ghost shrink-0 px-3" :aria-label="$t('Закрыть меню')" @click="closeMenu"><Icon name="x" /></button>
                     </div>
                     <RouterLink v-for="item in secondary" :key="item.to" :to="item.to"
                                 class="flex min-h-14 items-center gap-3 rounded-xl px-3 py-2 font-semibold leading-tight text-slate-800 hover:bg-slate-100"
@@ -146,7 +147,7 @@ function openUrgent() {
                         <span v-if="item.badge" class="shrink-0 rounded-full bg-amber-400 px-2 text-sm font-bold text-black">{{ item.badge }}</span>
                     </RouterLink>
                     <button class="mt-auto flex min-h-14 items-center gap-3 rounded-xl px-3 font-semibold text-red-800 hover:bg-red-50" @click="logout">
-                        <Icon name="log-out" /> Выйти
+                        <Icon name="log-out" /> {{ $t('Выйти') }}
                     </button>
                 </nav>
             </div>
@@ -156,8 +157,8 @@ function openUrgent() {
                  class="flex items-center gap-2 bg-slate-800 px-4 py-2 text-sm font-semibold text-white">
                 <Icon name="refresh-cw" />
                 <span class="flex-1">
-                    <template v-if="net.offline || net.stale">Нет связи — показаны сохранённые данные.</template>
-                    <template v-if="net.queued"> Ждут отправки: {{ net.queued }}. Отправим сами, когда появится интернет.</template>
+                    <template v-if="net.offline || net.stale">{{ $t('Нет связи — показаны сохранённые данные.') }}</template>
+                    <template v-if="net.queued"> {{ $t('Ждут отправки: :p0. Отправим сами, когда появится интернет.', { p0: net.queued }) }}</template>
                 </span>
             </div>
 
@@ -165,7 +166,7 @@ function openUrgent() {
             <RouterLink v-if="store.counts.safety_pending && route.path !== '/'" to="/" role="alert"
                         class="sticky top-16 z-20 m-3 flex items-center gap-3 rounded-2xl bg-red-700 p-4 text-white shadow-lg md:top-3">
                 <Icon name="shield" size="1.75em" />
-                <span class="flex-1"><b class="block text-lg">Все ли в порядке?</b>Семья ждёт вашего ответа — нажмите здесь</span>
+                <span class="flex-1"><b class="block text-lg">{{ $t('Все ли в порядке?') }}</b>{{ $t('Семья ждёт вашего ответа — нажмите здесь') }}</span>
             </RouterLink>
 
             <!-- Urgent status banner (in-app, while the app is open) -->
@@ -175,7 +176,7 @@ function openUrgent() {
                     <span class="block text-lg font-bold">{{ store.urgentBanner.title }}</span>
                     <span v-if="store.urgentBanner.body" class="block">{{ store.urgentBanner.body }}</span>
                 </button>
-                <button class="rounded-lg p-2 hover:bg-black/10" aria-label="Скрыть" @click="store.urgentBanner = null"><Icon name="x" /></button>
+                <button class="rounded-lg p-2 hover:bg-black/10" :aria-label="$t('Скрыть')" @click="store.urgentBanner = null"><Icon name="x" /></button>
             </div>
 
             <main id="main" class="mx-auto w-full max-w-6xl flex-1 px-4 pb-28 pt-4 md:px-8 md:pb-10 md:pt-8">
@@ -185,7 +186,7 @@ function openUrgent() {
             <!-- Mobile bottom navigation -->
             <nav class="fixed inset-x-0 bottom-0 z-30 grid border-t-2 border-slate-200 bg-white pb-[env(safe-area-inset-bottom)] md:hidden"
                  :style="{ gridTemplateColumns: `repeat(${nav.length}, minmax(0, 1fr))` }"
-                 aria-label="Основное меню">
+                 :aria-label="$t('Основное меню')">
                 <RouterLink
                     v-for="item in nav"
                     :key="item.to"

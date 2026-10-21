@@ -15,7 +15,7 @@ class EnsureCanWrite
     public function handle(Request $request, Closure $next): Response
     {
         if (! $request->isMethodSafe() && ! $this->context->role()?->canWrite()) {
-            return response()->json(['message' => 'У наблюдателя доступ только для просмотра.'], 403);
+            return response()->json(['message' => __('У наблюдателя доступ только для просмотра.')], 403);
         }
 
         return $next($request);

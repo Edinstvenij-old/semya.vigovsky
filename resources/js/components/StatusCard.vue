@@ -21,7 +21,7 @@ defineProps({ checkin: Object });
             </div>
         </div>
         <a v-if="checkin.lat" :href="`https://www.openstreetmap.org/?mlat=${checkin.lat}&mlon=${checkin.lng}#map=13/${checkin.lat}/${checkin.lng}`"
-           target="_blank" rel="noopener noreferrer" class="btn-ghost px-3" aria-label="Показать на карте">
+           target="_blank" rel="noopener noreferrer" class="btn-ghost px-3" :aria-label="$t('Показать на карте')">
             <Icon name="map-pin" />
         </a>
     </div>

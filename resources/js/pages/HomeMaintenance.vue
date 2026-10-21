@@ -7,6 +7,7 @@ import Icon from '../components/Icon.vue';
 import Modal from '../components/Modal.vue';
 import { date, daysUntil, dueText, MAINTENANCE_KINDS, money, monthYear, num } from '../format';
 import { loadMembers, store, toast } from '../store';
+import { t } from '../i18n';
 
 const tab = ref('list');
 const items = ref([]);
@@ -20,10 +21,10 @@ const calendar = ref({ events: [], from: null, to: null });
 
 const KIND_ICONS = { consumable: 'droplets', bill: 'zap', check: 'wrench', other: 'calendar-days' };
 const PRESETS = [
-    { title: 'Оплатить электроэнергию (день/ночь)', kind: 'bill', interval_days: 30 },
-    { title: 'Заменить фильтр воды', kind: 'consumable', interval_days: 90 },
-    { title: 'Проверить фильтр кондиционера', kind: 'check', interval_days: 60 },
-    { title: 'Заменить батарейки в датчиках дыма', kind: 'consumable', interval_days: 365 },
+    { title: t('Оплатить электроэнергию (день/ночь)'), kind: 'bill', interval_days: 30 },
+    { title: t('Заменить фильтр воды'), kind: 'consumable', interval_days: 90 },
+    { title: t('Проверить фильтр кондиционера'), kind: 'check', interval_days: 60 },
+    { title: t('Заменить батарейки в датчиках дыма'), kind: 'consumable', interval_days: 365 },
 ];
 
 async function load() {
@@ -73,7 +74,7 @@ async function save() {
 }
 
 async function remove() {
-    if (!confirm('Удалить это регулярное дело вместе с историей?')) return;
+    if (!confirm(t('Удалить это регулярное дело вместе с историей?'))) return;
     await api.delete(`/maintenance/${editing.value.id}`);
     editing.value = null;
     load();
@@ -126,16 +127,16 @@ const agenda = computed(() => calendar.value.events.filter((e) => e.date.startsW
 <template>
     <div class="space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <h1 class="page-title">Дом и обслуживание</h1>
-            <button v-if="store.user.can_write" class="btn-primary" @click="openEdit()"><Icon name="plus" /> Регулярное дело</button>
+            <h1 class="page-title">{{ $t('Дом и обслуживание') }}</h1>
+            <button v-if="store.user.can_write" class="btn-primary" @click="openEdit()"><Icon name="plus" /> {{ $t('Регулярное дело') }}</button>
         </div>
 
         <div class="grid grid-cols-2 gap-1 rounded-2xl bg-slate-200 p-1 sm:max-w-sm" role="tablist">
             <button class="min-h-12 rounded-xl font-semibold" :class="tab === 'list' ? 'bg-white shadow' : ''" role="tab" :aria-selected="tab === 'list'" @click="tab = 'list'">
-                Список
+                {{ $t('Список') }}
             </button>
             <button class="min-h-12 rounded-xl font-semibold" :class="tab === 'calendar' ? 'bg-white shadow' : ''" role="tab" :aria-selected="tab === 'calendar'" @click="tab = 'calendar'">
-                Календарь
+                {{ $t('Календарь') }}
             </button>
         </div>
 
@@ -149,7 +150,7 @@ const agenda = computed(() => calendar.value.events.filter((e) => e.date.startsW
                     </span>
                     <div class="min-w-0 flex-1">
                         <h2 class="text-lg font-bold">{{ item.title }}</h2>
-                        <p class="text-slate-600">{{ MAINTENANCE_KINDS[item.kind] }} · каждые {{ item.interval_days }} дн.</p>
+                        <p class="text-slate-600">{{ $t(':p0 · каждые :p1 дн.', { p0: MAINTENANCE_KINDS[item.kind], p1: item.interval_days }) }}</p>
                     </div>
                     <Avatar v-if="item.assignee" :user="item.assignee" size="sm" />
                 </div>
@@ -159,29 +160,29 @@ const agenda = computed(() => calendar.value.events.filter((e) => e.date.startsW
                     </span>
                 </div>
                 <div v-if="item.logs?.[0]" class="rounded-xl bg-slate-50 p-3 text-sm text-slate-700">
-                    Последний раз: {{ date(item.logs[0].done_on) }}<template v-if="item.logs[0].doer">, {{ item.logs[0].doer.name }}</template>
+                    {{ $t('Последний раз: :p0', { p0: date(item.logs[0].done_on) }) }}<template v-if="item.logs[0].doer">, {{ item.logs[0].doer.name }}</template>
                     <template v-if="item.logs[0].amount"> · {{ money(item.logs[0].amount) }}</template>
-                    <template v-if="item.logs[0].reading_day"> · день {{ num(item.logs[0].reading_day) }}</template>
-                    <template v-if="item.logs[0].reading_night"> / ночь {{ num(item.logs[0].reading_night) }}</template>
+                    <template v-if="item.logs[0].reading_day"> {{ $t('· день :p0', { p0: num(item.logs[0].reading_day) }) }}</template>
+                    <template v-if="item.logs[0].reading_night"> {{ $t('/ ночь :p0', { p0: num(item.logs[0].reading_night) }) }}</template>
                 </div>
                 <div v-if="store.user.can_write" class="mt-auto flex gap-2">
-                    <button class="btn-primary flex-1" @click="openComplete(item)"><Icon name="circle-check" /> Сделано</button>
-                    <button class="btn-secondary px-3" aria-label="Изменить" @click="openEdit(item)"><Icon name="pencil" /></button>
+                    <button class="btn-primary flex-1" @click="openComplete(item)"><Icon name="circle-check" /> {{ $t('Сделано') }}</button>
+                    <button class="btn-secondary px-3" :aria-label="$t('Изменить')" @click="openEdit(item)"><Icon name="pencil" /></button>
                 </div>
             </article>
-            <EmptyState v-if="!items.length" icon="calendar-days" text="Добавьте регулярные дела: замена фильтров, оплата счетов, проверка оборудования." class="lg:col-span-2" />
+            <EmptyState v-if="!items.length" icon="calendar-days" :text="$t('Добавьте регулярные дела: замена фильтров, оплата счетов, проверка оборудования.')" class="lg:col-span-2" />
         </div>
 
         <!-- Calendar -->
         <div v-else class="card">
             <div class="mb-4 flex items-center justify-between">
-                <button class="btn-ghost px-3" aria-label="Предыдущий месяц" @click="shiftMonth(-1)"><Icon name="chevron-left" /></button>
+                <button class="btn-ghost px-3" :aria-label="$t('Предыдущий месяц')" @click="shiftMonth(-1)"><Icon name="chevron-left" /></button>
                 <h2 class="text-xl font-bold">{{ monthLabel }}</h2>
-                <button class="btn-ghost px-3" aria-label="Следующий месяц" @click="shiftMonth(1)"><Icon name="chevron-right" /></button>
+                <button class="btn-ghost px-3" :aria-label="$t('Следующий месяц')" @click="shiftMonth(1)"><Icon name="chevron-right" /></button>
             </div>
             <div class="hidden md:block">
                 <div class="grid grid-cols-7 gap-1 text-center text-sm font-bold text-slate-600">
-                    <div v-for="d in ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']" :key="d">{{ d }}</div>
+                    <div v-for="d in [$t('Пн'), $t('Вт'), $t('Ср'), $t('Чт'), $t('Пт'), $t('Сб'), $t('Вс')]" :key="d">{{ d }}</div>
                 </div>
                 <div v-for="(week, i) in weeks" :key="i" class="mt-1 grid grid-cols-7 gap-1">
                     <div v-for="day in week" :key="day.key" class="min-h-24 rounded-lg p-1"
@@ -198,59 +199,59 @@ const agenda = computed(() => calendar.value.events.filter((e) => e.date.startsW
                     <span class="w-20 shrink-0 font-bold">{{ date(e.date) }}</span>
                     <span class="font-semibold">{{ e.title }}</span>
                 </li>
-                <li v-if="!agenda.length" class="text-slate-600">В этом месяце событий нет.</li>
+                <li v-if="!agenda.length" class="text-slate-600">{{ $t('В этом месяце событий нет.') }}</li>
             </ul>
             <div class="mt-4 flex flex-wrap gap-3 text-sm">
-                <span class="chip bg-purple-100 text-purple-900">Обслуживание</span>
-                <span class="chip bg-orange-100 text-orange-900">Срок задачи</span>
-                <span class="chip bg-blue-100 text-blue-900">Поездка</span>
+                <span class="chip bg-purple-100 text-purple-900">{{ $t('Обслуживание') }}</span>
+                <span class="chip bg-orange-100 text-orange-900">{{ $t('Срок задачи') }}</span>
+                <span class="chip bg-blue-100 text-blue-900">{{ $t('Поездка') }}</span>
             </div>
         </div>
 
         <!-- Create / edit -->
-        <Modal v-if="editing" :title="editing.id ? 'Изменить' : 'Новое регулярное дело'" @close="editing = null">
+        <Modal v-if="editing" :title="editing.id ? $t('Изменить') : $t('Новое регулярное дело')" @close="editing = null">
             <div v-if="!editing.id" class="mb-4 flex flex-wrap gap-2">
                 <button v-for="p in PRESETS" :key="p.title" class="chip bg-slate-100 py-2 hover:bg-slate-200" @click="applyPreset(p)">{{ p.title }}</button>
             </div>
             <form class="space-y-4" @submit.prevent="save">
                 <div>
-                    <label class="field-label" for="m-title">Название</label>
+                    <label class="field-label" for="m-title">{{ $t('Название') }}</label>
                     <input id="m-title" v-model="form.title" class="field" required>
                     <p v-if="errors.title" class="field-error">{{ errors.title }}</p>
                 </div>
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div>
-                        <label class="field-label" for="m-kind">Тип</label>
+                        <label class="field-label" for="m-kind">{{ $t('Тип') }}</label>
                         <select id="m-kind" v-model="form.kind" class="field">
                             <option v-for="(l, k) in MAINTENANCE_KINDS" :key="k" :value="k">{{ l }}</option>
                         </select>
                     </div>
                     <div>
-                        <label class="field-label" for="m-int">Повторять каждые (дней)</label>
+                        <label class="field-label" for="m-int">{{ $t('Повторять каждые (дней)') }}</label>
                         <input id="m-int" v-model.number="form.interval_days" type="number" min="1" class="field" required>
                     </div>
                     <div>
-                        <label class="field-label" for="m-next">Следующий срок</label>
+                        <label class="field-label" for="m-next">{{ $t('Следующий срок') }}</label>
                         <input id="m-next" v-model="form.next_due_on" type="date" class="field" required>
                     </div>
                     <div>
-                        <label class="field-label" for="m-rem">Напомнить за (дней)</label>
+                        <label class="field-label" for="m-rem">{{ $t('Напомнить за (дней)') }}</label>
                         <input id="m-rem" v-model.number="form.remind_days_before" type="number" min="0" max="60" class="field">
                     </div>
                     <div class="sm:col-span-2">
-                        <label class="field-label" for="m-who">Ответственный</label>
+                        <label class="field-label" for="m-who">{{ $t('Ответственный') }}</label>
                         <select id="m-who" v-model="form.assignee_id" class="field">
-                            <option value="">Вся семья</option>
+                            <option value="">{{ $t('Вся семья') }}</option>
                             <option v-for="m in store.members.filter((m) => m.role !== 'viewer')" :key="m.id" :value="m.id">{{ m.name }}</option>
                         </select>
                     </div>
                 </div>
                 <div>
-                    <label class="field-label" for="m-desc">Заметки (модель фильтра, номер лицевого счёта…)</label>
+                    <label class="field-label" for="m-desc">{{ $t('Заметки (модель фильтра, номер лицевого счёта…)') }}</label>
                     <textarea id="m-desc" v-model="form.description" class="field" rows="2" />
                 </div>
-                <button class="btn-primary w-full text-lg">Сохранить</button>
-                <button v-if="editing.id" type="button" class="btn-ghost w-full text-red-700" @click="remove"><Icon name="trash" /> Удалить</button>
+                <button class="btn-primary w-full text-lg">{{ $t('Сохранить') }}</button>
+                <button v-if="editing.id" type="button" class="btn-ghost w-full text-red-700" @click="remove"><Icon name="trash" /> {{ $t('Удалить') }}</button>
             </form>
         </Modal>
 
@@ -258,33 +259,33 @@ const agenda = computed(() => calendar.value.events.filter((e) => e.date.startsW
         <Modal v-if="completing" :title="completing.title" @close="completing = null">
             <form class="space-y-4" @submit.prevent="complete">
                 <div>
-                    <label class="field-label" for="d-on">Когда сделано</label>
+                    <label class="field-label" for="d-on">{{ $t('Когда сделано') }}</label>
                     <input id="d-on" v-model="done.done_on" type="date" class="field">
                 </div>
                 <template v-if="completing.kind === 'bill'">
                     <div>
-                        <label class="field-label" for="d-amount">Сумма, ₴</label>
+                        <label class="field-label" for="d-amount">{{ $t('Сумма, ₴') }}</label>
                         <input id="d-amount" v-model="done.amount" type="number" step="0.01" min="0" class="field" inputmode="decimal">
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="field-label" for="d-day">Показание «день» (T1)</label>
+                            <label class="field-label" for="d-day">{{ $t('Показание «день» (T1)') }}</label>
                             <input id="d-day" v-model="done.reading_day" type="number" step="0.01" min="0" class="field" inputmode="decimal">
                         </div>
                         <div>
-                            <label class="field-label" for="d-night">Показание «ночь» (T2)</label>
+                            <label class="field-label" for="d-night">{{ $t('Показание «ночь» (T2)') }}</label>
                             <input id="d-night" v-model="done.reading_night" type="number" step="0.01" min="0" class="field" inputmode="decimal">
                         </div>
                     </div>
                     <p v-if="completing.logs?.[0]?.reading_day" class="text-sm text-slate-600">
-                        Прошлые показания: день {{ num(completing.logs[0].reading_day) }}, ночь {{ num(completing.logs[0].reading_night) }}
+                        {{ $t('Прошлые показания: день :p0, ночь :p1', { p0: num(completing.logs[0].reading_day), p1: num(completing.logs[0].reading_night) }) }}
                     </p>
                 </template>
                 <div>
-                    <label class="field-label" for="d-note">Комментарий</label>
+                    <label class="field-label" for="d-note">{{ $t('Комментарий') }}</label>
                     <input id="d-note" v-model="done.note" class="field">
                 </div>
-                <button class="btn-primary w-full text-lg"><Icon name="circle-check" /> Отметить выполненным</button>
+                <button class="btn-primary w-full text-lg"><Icon name="circle-check" /> {{ $t('Отметить выполненным') }}</button>
             </form>
         </Modal>
     </div>

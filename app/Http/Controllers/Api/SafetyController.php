@@ -11,6 +11,7 @@ use App\Services\Checkins;
 use App\Services\Notifier;
 use App\Support\FamilyContext;
 use App\Support\Live;
+use App\Support\Msg;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -52,8 +53,8 @@ class SafetyController extends Controller
         $check->responses()->create(['user_id' => $user->id, 'status' => 'safe']);
 
         $this->notifier->send(
-            $check->family_id, 'logistics', "{$user->name} спрашивает: все ли в порядке?",
-            $note ?: 'Ответьте одной кнопкой на главной странице.', '/', $user,
+            $check->family_id, 'logistics', Msg::t(':name спрашивает: все ли в порядке?', ['name' => $user->name]),
+            $note ?: Msg::t('Ответьте одной кнопкой на главной странице.'), '/', $user,
         );
 
         Live::emit($check->family_id, 'safety');
@@ -64,7 +65,7 @@ class SafetyController extends Controller
     /** Answering is allowed for viewers too: grandparents must be able to say they are safe. */
     public function respond(Request $request, SafetyCheck $check): JsonResponse
     {
-        abort_unless($check->closed_at === null, 422, 'Этот опрос уже закрыт.');
+        abort_unless($check->closed_at === null, 422, __('Этот опрос уже закрыт.'));
 
         $data = $request->validate([
             'status' => ['required', Rule::in(SafetyResponse::STATUSES)],

@@ -8,6 +8,7 @@ import { ago } from '../format';
 import { onLive } from '../live';
 import { realtime } from '../realtime';
 import { store, toast } from '../store';
+import { t } from '../i18n';
 
 const open = ref([]);
 const done = ref([]);
@@ -63,7 +64,7 @@ async function remove(item) {
 }
 
 async function clearDone() {
-    if (!confirm('Убрать все купленное из списка?')) return;
+    if (!confirm(t('Убрать все купленное из списка?'))) return;
     await api.post('/shopping/clear-done');
     done.value = [];
 }
@@ -71,21 +72,21 @@ async function clearDone() {
 
 <template>
     <div class="space-y-4">
-        <h1 class="page-title">Список покупок</h1>
+        <h1 class="page-title">{{ $t('Список покупок') }}</h1>
 
         <form v-if="store.user.can_write" class="card flex flex-wrap gap-2" @submit.prevent="add">
             <label class="min-w-0 flex-[3_1_12rem]">
-                <span class="sr-only">Что купить</span>
-                <input v-model="text" class="field" placeholder="Что купить? Например: хлеб" maxlength="200" enterkeyhint="done">
+                <span class="sr-only">{{ $t('Что купить') }}</span>
+                <input v-model="text" class="field" :placeholder="$t('Что купить? Например: хлеб')" maxlength="200" enterkeyhint="done">
             </label>
             <label class="min-w-0 flex-[1_1_6rem]">
-                <span class="sr-only">Сколько</span>
-                <input v-model="quantity" class="field" placeholder="Сколько" maxlength="40">
+                <span class="sr-only">{{ $t('Сколько') }}</span>
+                <input v-model="quantity" class="field" :placeholder="$t('Сколько')" maxlength="40">
             </label>
-            <button class="btn-primary flex-[1_1_8rem]"><Icon name="plus" /> Добавить</button>
+            <button class="btn-primary flex-[1_1_8rem]"><Icon name="plus" /> {{ $t('Добавить') }}</button>
         </form>
 
-        <ul v-if="open.length" class="space-y-2" aria-label="Нужно купить">
+        <ul v-if="open.length" class="space-y-2" :aria-label="$t('Нужно купить')">
             <li v-for="item in open" :key="item.id" class="card flex items-center gap-3 p-2">
                 <label class="flex min-h-14 flex-1 cursor-pointer items-center gap-3 px-2">
                     <input type="checkbox" class="h-8 w-8 shrink-0" :checked="item.is_done" :disabled="!store.user.can_write" @change="toggle(item)">
@@ -94,21 +95,21 @@ async function clearDone() {
                         <span class="block text-sm text-slate-600">{{ item.adder?.name }}, {{ ago(item.created_at) }}</span>
                     </span>
                 </label>
-                <button v-if="store.user.can_write" class="btn-ghost px-3" :aria-label="`Удалить ${item.text}`" @click="remove(item)"><Icon name="trash" /></button>
+                <button v-if="store.user.can_write" class="btn-ghost px-3" :aria-label="$t('Удалить :p0', { p0: item.text })" @click="remove(item)"><Icon name="trash" /></button>
             </li>
         </ul>
-        <EmptyState v-else icon="shopping-cart" text="Список пуст — всё куплено" />
+        <EmptyState v-else icon="shopping-cart" :text="$t('Список пуст — всё куплено')" />
 
         <section v-if="done.length" class="card">
             <div class="flex flex-wrap items-center justify-between gap-2">
                 <button class="btn-ghost -ml-3" :aria-expanded="showDone" @click="showDone = !showDone">
-                    <Icon :name="showDone ? 'chevron-left' : 'chevron-right'" /> Куплено ({{ done.length }})
+                    <Icon :name="showDone ? 'chevron-left' : 'chevron-right'" /> {{ $t('Куплено (:p0)', { p0: done.length }) }}
                 </button>
-                <button v-if="store.user.can_write" class="btn-ghost text-red-800" @click="clearDone"><Icon name="trash" /> Очистить</button>
+                <button v-if="store.user.can_write" class="btn-ghost text-red-800" @click="clearDone"><Icon name="trash" /> {{ $t('Очистить') }}</button>
             </div>
             <ul v-if="showDone" class="mt-2 space-y-1">
                 <li v-for="item in done" :key="item.id" class="flex items-center gap-3 rounded-xl px-2 py-1">
-                    <input type="checkbox" class="h-6 w-6 shrink-0" checked :disabled="!store.user.can_write" :aria-label="`Вернуть ${item.text} в список`" @change="toggle(item)">
+                    <input type="checkbox" class="h-6 w-6 shrink-0" checked :disabled="!store.user.can_write" :aria-label="$t('Вернуть :p0 в список', { p0: item.text })" @change="toggle(item)">
                     <span class="flex-1 text-slate-600 line-through">{{ item.text }}<template v-if="item.quantity"> — {{ item.quantity }}</template></span>
                     <span class="text-sm text-slate-600">{{ item.doer?.name }}</span>
                 </li>

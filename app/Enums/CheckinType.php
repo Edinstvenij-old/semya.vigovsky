@@ -23,7 +23,14 @@ enum CheckinType: string
     case NeedHelp = 'need_help';
     case Custom = 'custom';
 
-    public function label(): string
+    /** Label in the current request language. */
+    public function label(?string $locale = null): string
+    {
+        return __($this->labelKey(), [], $locale);
+    }
+
+    /** Russian source label — the translation key. */
+    public function labelKey(): string
     {
         return match ($this) {
             // Gender-neutral wording: the same label reads correctly for every family member.

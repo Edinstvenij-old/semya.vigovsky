@@ -35,7 +35,7 @@ onBeforeUnmount(() => {
             >
                 <div class="mb-4 flex items-start justify-between gap-3">
                     <h2 class="text-xl font-bold">{{ title }}</h2>
-                    <button data-close class="btn-ghost -mr-2 -mt-2 px-3" aria-label="Закрыть" @click="emit('close')">
+                    <button data-close class="btn-ghost -mr-2 -mt-2 px-3" :aria-label="$t('Закрыть')" @click="emit('close')">
                         <Icon name="x" />
                     </button>
                 </div>

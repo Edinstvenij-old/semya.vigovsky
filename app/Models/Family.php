@@ -39,17 +39,17 @@ class Family extends Model
     public function seedDefaults(): void
     {
         foreach ([
-            ['Покупки', 'shopping-cart', '#15803d'],
-            ['Ремонт техники', 'wrench', '#c2410c'],
-            ['Установка оборудования', 'plug', '#1d4ed8'],
-            ['Дом', 'home', '#7e22ce'],
+            [__('Покупки'), 'shopping-cart', '#15803d'],
+            [__('Ремонт техники'), 'wrench', '#c2410c'],
+            [__('Установка оборудования'), 'plug', '#1d4ed8'],
+            [__('Дом'), 'home', '#7e22ce'],
         ] as $i => [$name, $icon, $color]) {
             TaskCategory::create(['family_id' => $this->id, 'position' => $i] + compact('name', 'icon', 'color'));
         }
 
         Thread::create([
             'family_id' => $this->id,
-            'title' => 'Общий чат семьи',
+            'title' => __('Общий чат семьи'),
             'icon' => 'users',
             'is_pinned' => true,
             'created_by' => $this->created_by,

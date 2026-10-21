@@ -22,7 +22,7 @@ class Telegram
         return config('familyhub.telegram.username');
     }
 
-    public function sendMessage(string $chatId, string $html, ?string $buttonUrl = null, bool $silent = false): bool
+    public function sendMessage(string $chatId, string $html, ?string $buttonUrl = null, bool $silent = false, ?string $locale = null): bool
     {
         if (! $this->configured()) {
             return false;
@@ -38,7 +38,7 @@ class Telegram
 
         // Telegram only accepts public https links on buttons.
         if ($buttonUrl && str_starts_with($buttonUrl, 'https://')) {
-            $payload['reply_markup'] = ['inline_keyboard' => [[['text' => 'Открыть в приложении', 'url' => $buttonUrl]]]];
+            $payload['reply_markup'] = ['inline_keyboard' => [[['text' => __('Открыть в приложении', [], $locale), 'url' => $buttonUrl]]]];
         }
 
         $response = $this->call('sendMessage', $payload);

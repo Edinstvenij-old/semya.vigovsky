@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { reactive } from 'vue';
+import { getLocale } from './i18n';
+import { t } from './i18n';
 
 /**
  * Axios instance for the Laravel API. Sanctum SPA auth: session cookie +
@@ -9,7 +11,8 @@ export const api = axios.create({
     baseURL: '/api',
     withCredentials: true,
     withXSRFToken: true,
-    headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+    // X-Locale: language for server messages until the user has a saved preference.
+    headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-Locale': getLocale() },
 });
 
 /** Connection state shown by the layout: offline, data from cache, queued requests. */
@@ -150,8 +153,8 @@ api.interceptors.response.use(
 export function errorText(error) {
     const data = error?.response?.data;
     if (data?.errors) return Object.values(data.errors)[0]?.[0];
-    if (!error?.response) return 'Нет связи с сервером. Проверьте интернет и попробуйте ещё раз.';
-    return data?.message || 'Что-то пошло не так. Попробуйте ещё раз.';
+    if (!error?.response) return t('Нет связи с сервером. Проверьте интернет и попробуйте ещё раз.');
+    return data?.message || t('Что-то пошло не так. Попробуйте ещё раз.');
 }
 
 /** Validation errors as { field: 'message' }. */

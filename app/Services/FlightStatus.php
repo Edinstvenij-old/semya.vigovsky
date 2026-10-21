@@ -89,7 +89,7 @@ class FlightStatus
             'number' => $f['number'] ?? null,
             'airline' => $f['airline']['name'] ?? null,
             'status' => $status,
-            'status_label' => self::STATUSES[$status] ?? $status,
+            'status_label' => isset(self::STATUSES[$status]) ? __(self::STATUSES[$status]) : $status,
             'delay_minutes' => $delay !== null && $delay > 0 ? $delay : 0,
             'departure' => $departure,
             'arrival' => $arrival,

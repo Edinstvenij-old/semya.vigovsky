@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\CheckinType;
 use App\Models\Concerns\BelongsToFamily;
+use App\Support\Msg;
 use Illuminate\Database\Eloquent\Attributes\Appends;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -37,6 +38,12 @@ class Checkin extends Model
     public function getLabelAttribute(): string
     {
         return $this->type === CheckinType::Custom && $this->note ? $this->note : $this->type->label();
+    }
+
+    /** Label for a notification: a custom note stays as typed, standard statuses are translated per recipient. */
+    public function labelMessage(): string|array
+    {
+        return $this->type === CheckinType::Custom && $this->note ? $this->note : Msg::t($this->type->labelKey());
     }
 
     public function getIconAttribute(): string

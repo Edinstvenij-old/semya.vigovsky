@@ -21,14 +21,14 @@ class RequireTwoFactor
 
         if (! $user->hasTwoFactor()) {
             return response()->json([
-                'message' => 'Для доступа к документам включите двухфакторную аутентификацию.',
+                'message' => __('Для доступа к документам включите двухфакторную аутентификацию.'),
                 'two_factor' => 'setup_required',
             ], 423);
         }
 
         if (! $this->twoFactor->sessionVerified($request)) {
             return response()->json([
-                'message' => 'Введите код из приложения-аутентификатора.',
+                'message' => __('Введите код из приложения-аутентификатора.'),
                 'two_factor' => 'challenge_required',
             ], 423);
         }

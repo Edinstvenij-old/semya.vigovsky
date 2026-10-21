@@ -34,10 +34,10 @@ async function readAll() {
 <template>
     <div class="space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <h1 class="page-title">Уведомления</h1>
+            <h1 class="page-title">{{ $t('Уведомления') }}</h1>
             <div class="flex gap-2">
-                <RouterLink to="/settings#notifications" class="btn-secondary"><Icon name="settings" /> Настроить</RouterLink>
-                <button v-if="items.some((n) => !n.read_at)" class="btn-secondary" @click="readAll"><Icon name="check" /> Прочитать все</button>
+                <RouterLink to="/settings#notifications" class="btn-secondary"><Icon name="settings" /> {{ $t('Настроить') }}</RouterLink>
+                <button v-if="items.some((n) => !n.read_at)" class="btn-secondary" @click="readAll"><Icon name="check" /> {{ $t('Прочитать все') }}</button>
             </div>
         </div>
         <ul class="space-y-2">
@@ -57,6 +57,6 @@ async function readAll() {
                 </button>
             </li>
         </ul>
-        <EmptyState v-if="!items.length" icon="bell" text="Уведомлений нет" />
+        <EmptyState v-if="!items.length" icon="bell" :text="$t('Уведомлений нет')" />
     </div>
 </template>

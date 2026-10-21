@@ -17,7 +17,7 @@ class AttachmentController extends Controller
     public function show(Request $request, Attachment $attachment, TwoFactor $twoFactor): Response
     {
         if ($attachment->attachable_type === TravelDocument::class) {
-            abort_unless($request->user()->hasTwoFactor() && $twoFactor->sessionVerified($request), 423, 'Требуется 2FA.');
+            abort_unless($request->user()->hasTwoFactor() && $twoFactor->sessionVerified($request), 423, __('Требуется 2FA.'));
         }
 
         $disk = Storage::disk($attachment->disk);
@@ -38,7 +38,7 @@ class AttachmentController extends Controller
         }
 
         if ($attachment->attachable_type === TravelDocument::class) {
-            abort_unless($request->user()->hasTwoFactor() && $twoFactor->sessionVerified($request), 423, 'Требуется 2FA.');
+            abort_unless($request->user()->hasTwoFactor() && $twoFactor->sessionVerified($request), 423, __('Требуется 2FA.'));
         }
 
         $disk = Storage::disk($attachment->disk);
@@ -53,7 +53,7 @@ class AttachmentController extends Controller
     public function destroy(Request $request, Attachment $attachment, TwoFactor $twoFactor): JsonResponse
     {
         if ($attachment->attachable_type === TravelDocument::class) {
-            abort_unless($twoFactor->sessionVerified($request), 423, 'Требуется 2FA.');
+            abort_unless($twoFactor->sessionVerified($request), 423, __('Требуется 2FA.'));
         }
 
         $attachment->delete();

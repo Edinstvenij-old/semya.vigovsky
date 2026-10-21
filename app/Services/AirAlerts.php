@@ -83,7 +83,7 @@ class AirAlerts
                 'name' => $region,
                 'status' => $whole ? 'alert' : 'partial',
                 'since' => $here->min('started_at'),
-                'types' => $here->pluck('alert_type')->unique()->map(fn ($t) => self::TYPES[$t] ?? $t)->values(),
+                'types' => $here->pluck('alert_type')->unique()->map(fn ($t) => isset(self::TYPES[$t]) ? __(self::TYPES[$t]) : $t)->values(),
                 'places' => $whole ? [] : $here->pluck('location_title')->unique()->take(6)->values(),
             ];
         })->values()->all();

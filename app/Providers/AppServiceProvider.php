@@ -34,13 +34,13 @@ class AppServiceProvider extends ServiceProvider
         // Reset links open the SPA page, and the email is in Russian.
         ResetPassword::createUrlUsing(fn ($user, string $token) => url('/reset-password/'.$token.'?email='.urlencode($user->email)));
         ResetPassword::toMailUsing(fn ($user, string $token) => (new MailMessage)
-            ->subject('Сброс пароля — '.config('app.name'))
-            ->greeting('Здравствуйте, '.$user->name.'!')
-            ->line('Кто-то (надеемся, вы) попросил сбросить пароль для входа в семейное приложение.')
-            ->action('Задать новый пароль', url('/reset-password/'.$token.'?email='.urlencode($user->email)))
-            ->line('Ссылка действует '.intdiv(config('auth.passwords.users.expire'), 60).' ч.')
-            ->line('Если вы ничего не запрашивали, просто удалите это письмо — пароль останется прежним.')
-            ->salutation('Ваша семья'));
+            ->subject(__('Сброс пароля — :app', ['app' => config('app.name')]))
+            ->greeting(__('Здравствуйте, :name!', ['name' => $user->name]))
+            ->line(__('Кто-то (надеемся, вы) попросил сбросить пароль для входа в семейное приложение.'))
+            ->action(__('Задать новый пароль'), url('/reset-password/'.$token.'?email='.urlencode($user->email)))
+            ->line(__('Ссылка действует :hours ч.', ['hours' => intdiv(config('auth.passwords.users.expire'), 60)]))
+            ->line(__('Если вы ничего не запрашивали, просто удалите это письмо — пароль останется прежним.'))
+            ->salutation(__('Ваша семья')));
 
         RateLimiter::for('two-factor', fn (Request $request) => Limit::perMinute(10)->by($request->user()?->id ?: $request->ip()));
     }

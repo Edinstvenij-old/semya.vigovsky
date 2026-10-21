@@ -10,6 +10,7 @@ use App\Models\Invitation;
 use App\Models\User;
 use App\Services\Notifier;
 use App\Services\TwoFactor;
+use App\Support\Msg;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -46,7 +47,7 @@ class AuthController extends Controller
         ]);
 
         if (! Auth::guard('web')->attempt($credentials, $request->boolean('remember', true))) {
-            throw ValidationException::withMessages(['email' => 'Неверный email или пароль.']);
+            throw ValidationException::withMessages(['email' => __('Неверный email или пароль.')]);
         }
 
         $request->session()->regenerate();
@@ -67,7 +68,7 @@ class AuthController extends Controller
     /** Creates a new family with the registering user as its administrator. */
     public function register(Request $request): JsonResponse
     {
-        abort_unless($this->registrationOpen(), 403, 'Регистрация закрыта. Попросите приглашение у администратора семьи.');
+        abort_unless($this->registrationOpen(), 403, __('Регистрация закрыта. Попросите приглашение у администратора семьи.'));
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:100'],
@@ -95,7 +96,7 @@ class AuthController extends Controller
     public function showInvitation(string $token): JsonResponse
     {
         $invitation = Invitation::findValidByToken($token);
-        abort_unless($invitation, 404, 'Приглашение недействительно или истекло.');
+        abort_unless($invitation, 404, __('Приглашение недействительно или истекло.'));
 
         return response()->json([
             'family' => $invitation->family->name,
@@ -117,7 +118,7 @@ class AuthController extends Controller
                 'email' => ['required', 'email', 'max:190', 'unique:users,email'],
                 'password' => ['required', 'confirmed', Password::min(10)],
             ], [
-                'email.unique' => 'Этот email уже зарегистрирован — войдите и откройте ссылку снова.',
+                'email.unique' => __('Этот email уже зарегистрирован — войдите и откройте ссылку снова.'),
             ]);
         }
 
@@ -129,7 +130,7 @@ class AuthController extends Controller
                 ->lockForUpdate()
                 ->first();
 
-            abort_unless($invitation?->isValid(), 404, 'Приглашение недействительно или истекло.');
+            abort_unless($invitation?->isValid(), 404, __('Приглашение недействительно или истекло.'));
 
             $user ??= User::create($data);
 
@@ -149,7 +150,7 @@ class AuthController extends Controller
             $request->session()->regenerate();
         }
 
-        $notifier->send($user->current_family_id, 'family', "{$user->name} присоединился(ась) к семье", null, '/family', $user);
+        $notifier->send($user->current_family_id, 'family', Msg::t(':name присоединился(ась) к семье', ['name' => $user->name]), null, '/family', $user);
 
         return response()->json(['user' => $user->fresh()->toSessionArray()]);
     }

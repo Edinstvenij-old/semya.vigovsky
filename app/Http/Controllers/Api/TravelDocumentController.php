@@ -57,11 +57,11 @@ class TravelDocumentController extends Controller
 
     public function flightStatus(TravelDocument $document, FlightStatus $flights): JsonResponse
     {
-        abort_unless($flights->configured(), 422, 'Проверка рейсов не настроена на сервере (FLIGHT_STATUS_API_KEY).');
-        abort_unless($document->type === 'flight' && $document->reference && $document->departs_at, 422, 'Нужны номер рейса и дата вылета.');
+        abort_unless($flights->configured(), 422, __('Проверка рейсов не настроена на сервере (FLIGHT_STATUS_API_KEY).'));
+        abort_unless($document->type === 'flight' && $document->reference && $document->departs_at, 422, __('Нужны номер рейса и дата вылета.'));
 
         $status = $flights->lookup($document->reference, $document->departs_at);
-        abort_unless($status, 404, 'Рейс не найден. Проверьте номер (например, PS 9124) и дату.');
+        abort_unless($status, 404, __('Рейс не найден. Проверьте номер (например, PS 9124) и дату.'));
 
         return response()->json($status);
     }

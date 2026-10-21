@@ -32,25 +32,25 @@ async function submit() {
 </script>
 
 <template>
-    <AuthCard title="Новый пароль" :subtitle="form.email">
+    <AuthCard :title="$t('Новый пароль')" :subtitle="form.email">
         <div v-if="done" class="space-y-4">
             <p class="rounded-xl bg-emerald-50 p-4 text-emerald-900" role="status">{{ done }}</p>
-            <RouterLink to="/login" class="btn-primary w-full text-lg">Войти</RouterLink>
+            <RouterLink to="/login" class="btn-primary w-full text-lg">{{ $t('Войти') }}</RouterLink>
         </div>
         <form v-else class="space-y-4" @submit.prevent="submit">
             <input type="hidden" name="username" :value="form.email" autocomplete="username">
             <div>
-                <label class="field-label" for="password">Новый пароль (минимум 10 символов)</label>
+                <label class="field-label" for="password">{{ $t('Новый пароль (минимум 10 символов)') }}</label>
                 <input id="password" v-model="form.password" class="field" type="password" autocomplete="new-password" required>
                 <p v-if="errors.password" class="field-error">{{ errors.password }}</p>
             </div>
             <div>
-                <label class="field-label" for="password2">Ещё раз</label>
+                <label class="field-label" for="password2">{{ $t('Ещё раз') }}</label>
                 <input id="password2" v-model="form.password_confirmation" class="field" type="password" autocomplete="new-password" required>
             </div>
             <p v-if="errors.email || error" class="field-error" role="alert">{{ errors.email || error }}</p>
-            <button class="btn-primary w-full text-lg" :disabled="busy">Сохранить пароль</button>
-            <RouterLink v-if="errors.email" to="/forgot-password" class="btn-ghost w-full">Запросить новую ссылку</RouterLink>
+            <button class="btn-primary w-full text-lg" :disabled="busy">{{ $t('Сохранить пароль') }}</button>
+            <RouterLink v-if="errors.email" to="/forgot-password" class="btn-ghost w-full">{{ $t('Запросить новую ссылку') }}</RouterLink>
         </form>
     </AuthCard>
 </template>

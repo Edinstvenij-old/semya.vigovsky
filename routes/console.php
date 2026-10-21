@@ -10,6 +10,7 @@ use App\Services\FamilyBackup;
 use App\Services\FamilyRestore;
 use App\Services\Notifier;
 use App\Services\Telegram;
+use App\Support\Msg;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schedule;
@@ -58,11 +59,11 @@ Artisan::command('maintenance:remind', function (Notifier $notifier) {
 
         if (today()->gte($remindFrom) && ! $alreadyReminded) {
             $when = $item->next_due_on->isPast() && ! $item->next_due_on->isToday()
-                ? 'просрочено с '.$item->next_due_on->format('d.m')
-                : 'срок '.$item->next_due_on->format('d.m');
+                ? Msg::t('просрочено с :date', ['date' => $item->next_due_on->format('d.m')])
+                : Msg::t('срок :date', ['date' => $item->next_due_on->format('d.m')]);
 
             $notifier->send(
-                $item->family_id, 'maintenance', "Пора: {$item->title}", $when, '/home',
+                $item->family_id, 'maintenance', Msg::t('Пора: :title', ['title' => $item->title]), $when, '/home',
                 recipients: $item->assignee ? [$item->assignee] : null,
             );
             $item->update(['reminded_for' => $item->next_due_on]);

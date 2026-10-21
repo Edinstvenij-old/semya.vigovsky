@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\SetLocale;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -29,6 +30,7 @@ class ProfileController extends Controller
     {
         $rules = [
             'font_scale' => ['sometimes', Rule::in([1, 1.25, 1.5, 1.75])],
+            'locale' => ['sometimes', Rule::in(SetLocale::SUPPORTED)],
             'high_contrast' => ['sometimes', 'boolean'],
             'simple_mode' => ['sometimes', 'boolean'],
         ];

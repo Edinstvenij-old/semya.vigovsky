@@ -45,23 +45,23 @@ onBeforeUnmount(() => {
 
 <template>
     <Teleport to="body">
-        <div class="fixed inset-0 z-50 flex flex-col bg-black text-white" role="dialog" aria-modal="true" aria-label="Просмотр фото"
+        <div class="fixed inset-0 z-50 flex flex-col bg-black text-white" role="dialog" aria-modal="true" :aria-label="$t('Просмотр фото')"
              @touchstart.passive="touchStart" @touchend.passive="touchEnd">
             <div class="flex items-center gap-2 p-2">
                 <span class="min-w-0 flex-1 truncate px-2 text-sm opacity-80">{{ index + 1 }} / {{ photos.length }}<template v-if="photo.source?.label"> · {{ photo.source.label }}</template></span>
                 <RouterLink v-if="photo.source?.url" :to="photo.source.url" class="btn shrink-0 text-white hover:bg-white/10" @click="emit('close')">
-                    <Icon name="external-link" /> <span class="hidden sm:inline">Открыть</span>
+                    <Icon name="external-link" /> <span class="hidden sm:inline">{{ $t('Открыть') }}</span>
                 </RouterLink>
-                <a :href="photo.url" target="_blank" class="btn shrink-0 text-white hover:bg-white/10" aria-label="Скачать"><Icon name="download" /></a>
-                <button class="btn shrink-0 text-white hover:bg-white/10" aria-label="Закрыть" @click="emit('close')"><Icon name="x" /></button>
+                <a :href="photo.url" target="_blank" class="btn shrink-0 text-white hover:bg-white/10" :aria-label="$t('Скачать')"><Icon name="download" /></a>
+                <button class="btn shrink-0 text-white hover:bg-white/10" :aria-label="$t('Закрыть')" @click="emit('close')"><Icon name="x" /></button>
             </div>
             <div class="relative flex min-h-0 flex-1 items-center justify-center">
                 <img :src="photo.url" :alt="photo.original_name || photo.name" class="max-h-full max-w-full object-contain">
                 <template v-if="photos.length > 1">
-                    <button class="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-3 hover:bg-black/70" aria-label="Предыдущее фото" @click="go(-1)">
+                    <button class="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-3 hover:bg-black/70" :aria-label="$t('Предыдущее фото')" @click="go(-1)">
                         <Icon name="chevron-left" size="1.6em" />
                     </button>
-                    <button class="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-3 hover:bg-black/70" aria-label="Следующее фото" @click="go(1)">
+                    <button class="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-3 hover:bg-black/70" :aria-label="$t('Следующее фото')" @click="go(1)">
                         <Icon name="chevron-right" size="1.6em" />
                     </button>
                 </template>

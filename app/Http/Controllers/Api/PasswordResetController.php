@@ -27,7 +27,7 @@ class PasswordResetController extends Controller
         Password::sendResetLink($request->only('email'));
 
         return response()->json([
-            'message' => 'Если такой email есть в семье, на него придёт письмо со ссылкой. Не пришло — попросите администратора семьи создать ссылку для сброса.',
+            'message' => __('Если такой email есть в семье, на него придёт письмо со ссылкой. Не пришло — попросите администратора семьи создать ссылку для сброса.'),
         ]);
     }
 
@@ -48,10 +48,10 @@ class PasswordResetController extends Controller
         );
 
         if ($status !== Password::PASSWORD_RESET) {
-            throw ValidationException::withMessages(['email' => 'Ссылка недействительна или устарела. Запросите новую.']);
+            throw ValidationException::withMessages(['email' => __('Ссылка недействительна или устарела. Запросите новую.')]);
         }
 
-        return response()->json(['message' => 'Пароль изменён. Теперь можно войти.']);
+        return response()->json(['message' => __('Пароль изменён. Теперь можно войти.')]);
     }
 
     /**
@@ -69,7 +69,7 @@ class PasswordResetController extends Controller
         abort_if(
             FamilyMember::where('user_id', $userId)->where('family_id', '!=', $context->id())->exists(),
             403,
-            'Этот человек состоит и в другой семье — сбросить пароль он может только сам, через «Забыли пароль?».',
+            __('Этот человек состоит и в другой семье — сбросить пароль он может только сам, через «Забыли пароль?».'),
         );
 
         $token = Password::createToken($member->user);

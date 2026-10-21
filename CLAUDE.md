@@ -10,7 +10,11 @@ See README.md for the module overview, schema and API.
 - New family routes go inside the `family` middleware group; mutating ones inside `can-write`
   (viewers are read-only); admin-only ones under `family-admin`; documents under `two-factor`.
 - Notifications go through `App\Services\Notifier` with a channel; only `logistics` is urgent.
-- UI text is Russian. Keep tap targets ≥ 48px (`btn-*`, `field` classes in `resources/css/app.css`) and
+- UI is Russian + Ukrainian. Frontend strings go through `t('Русский текст')` / `$t(...)` (keys are the
+  Russian text, placeholders `:name`); add the Ukrainian line to `resources/js/lang/uk.js`. Server messages
+  use `__('…')` with translations in `lang/uk.json`; notifications use `Msg::t()` so each recipient gets
+  their own language.
+- UI text is Russian by default. Keep tap targets ≥ 48px (`btn-*`, `field` classes in `resources/css/app.css`) and
   always pair icons with a text label or `aria-label`.
 - Models use `#[Fillable]` / `#[Hidden]` attributes (Laravel 13 style).
 

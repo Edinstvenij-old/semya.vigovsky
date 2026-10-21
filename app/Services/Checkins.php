@@ -6,6 +6,7 @@ use App\Enums\CheckinType;
 use App\Models\Checkin;
 use App\Models\User;
 use App\Support\Live;
+use App\Support\Msg;
 
 /** Records a status ("check-in") and tells the rest of the family with an urgent notification. */
 class Checkins
@@ -25,7 +26,7 @@ class Checkins
         $this->notifier->send(
             $checkin->family_id,
             'logistics',
-            "{$user->name}: {$checkin->label}",
+            Msg::t(':name: :status', ['name' => $user->name, 'status' => $checkin->labelMessage()]),
             $details ? implode(' · ', $details) : null,
             in_array($type, [CheckinType::Safe, CheckinType::Shelter, CheckinType::NeedHelp], true) ? '/' : '/travel',
             $user,

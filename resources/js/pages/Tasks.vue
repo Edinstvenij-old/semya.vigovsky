@@ -10,6 +10,7 @@ import TaskForm from '../components/TaskForm.vue';
 import { date, daysUntil, STATUS_LABELS } from '../format';
 import { onLive } from '../live';
 import { store, toast } from '../store';
+import { t } from '../i18n';
 
 const router = useRouter();
 const tasks = ref([]);
@@ -82,7 +83,7 @@ async function addCategory() {
 }
 
 async function removeCategory(c) {
-    if (!confirm(`Удалить категорию «${c.name}»? Задачи останутся без категории.`)) return;
+    if (!confirm(t('Удалить категорию «:p0»? Задачи останутся без категории.', { p0: c.name }))) return;
     await api.delete(`/categories/${c.id}`);
     if (category.value === c.id) category.value = '';
     load();
@@ -98,14 +99,14 @@ function onSaved(task) {
 <template>
     <div class="space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <h1 class="page-title">Задачи и проекты</h1>
-            <button v-if="store.user.can_write" class="btn-primary" @click="creating = true"><Icon name="plus" /> Новая задача</button>
+            <h1 class="page-title">{{ $t('Задачи и проекты') }}</h1>
+            <button v-if="store.user.can_write" class="btn-primary" @click="creating = true"><Icon name="plus" /> {{ $t('Новая задача') }}</button>
         </div>
 
         <!-- Category filter -->
-        <div class="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1" role="tablist" aria-label="Категории">
+        <div class="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1" role="tablist" :aria-label="$t('Категории')">
             <button class="btn shrink-0" :class="category === '' ? 'bg-slate-900 text-white' : 'bg-white ring-2 ring-slate-300'"
-                    role="tab" :aria-selected="category === ''" @click="category = ''">Все</button>
+                    role="tab" :aria-selected="category === ''" @click="category = ''">{{ $t('Все') }}</button>
             <button v-for="c in categories" :key="c.id" class="btn shrink-0"
                     :class="category === c.id ? 'text-white' : 'bg-white ring-2 ring-slate-300'"
                     :style="category === c.id ? { background: c.color } : {}"
@@ -113,19 +114,19 @@ function onSaved(task) {
                 <Icon :name="c.icon" /> {{ c.name }}
                 <span v-if="c.open_count" class="rounded-full bg-black/10 px-2 text-sm">{{ c.open_count }}</span>
             </button>
-            <button v-if="store.user.can_write" class="btn-ghost shrink-0" aria-label="Настроить категории" @click="managingCategories = true">
+            <button v-if="store.user.can_write" class="btn-ghost shrink-0" :aria-label="$t('Настроить категории')" @click="managingCategories = true">
                 <Icon name="settings" />
             </button>
         </div>
 
         <div class="flex flex-wrap gap-3">
             <label class="relative min-w-0 flex-1">
-                <span class="sr-only">Поиск</span>
+                <span class="sr-only">{{ $t('Поиск') }}</span>
                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"><Icon name="search" /></span>
-                <input v-model="search" class="field pl-11" placeholder="Поиск по задачам">
+                <input v-model="search" class="field pl-11" :placeholder="$t('Поиск по задачам')">
             </label>
             <label class="flex min-h-12 items-center gap-2 rounded-xl bg-white px-4 font-semibold ring-2 ring-slate-300">
-                <input v-model="onlyMine" type="checkbox" class="h-5 w-5"> Только мои
+                <input v-model="onlyMine" type="checkbox" class="h-5 w-5"> {{ $t('Только мои') }}
             </label>
         </div>
 
@@ -157,7 +158,7 @@ function onSaved(task) {
                             <Avatar v-if="t.assignee" :user="t.assignee" size="sm" />
                         </div>
                         <div class="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-700">
-                            <span v-if="t.priority === 'high'" class="chip bg-red-100 text-red-800">Срочно</span>
+                            <span v-if="t.priority === 'high'" class="chip bg-red-100 text-red-800">{{ $t('Срочно') }}</span>
                             <span v-if="t.category" class="chip text-white" :style="{ background: t.category.color }">{{ t.category.name }}</span>
                             <span v-if="t.checklist_count" class="chip bg-slate-100"><Icon name="list-checks" /> {{ t.checklist_done_count }}/{{ t.checklist_count }}</span>
                             <span v-if="t.attachments_count" class="chip bg-slate-100"><Icon name="camera" /> {{ t.attachments_count }}</span>
@@ -170,23 +171,23 @@ function onSaved(task) {
                             → {{ STATUS_LABELS[nextStatus(t.status)] }}
                         </button>
                     </article>
-                    <EmptyState v-if="!loading && !columns[s].length" icon="clipboard-list" text="Пусто" />
+                    <EmptyState v-if="!loading && !columns[s].length" icon="clipboard-list" :text="$t('Пусто')" />
                 </div>
             </section>
         </div>
 
         <TaskForm v-if="creating" :categories="categories" :default-category="category || ''" @close="creating = false" @saved="onSaved" />
 
-        <Modal v-if="managingCategories" title="Категории" @close="managingCategories = false">
+        <Modal v-if="managingCategories" :title="$t('Категории')" @close="managingCategories = false">
             <ul class="mb-4 space-y-2">
                 <li v-for="c in categories" :key="c.id" class="flex items-center gap-3">
                     <span class="h-4 w-4 rounded-full" :style="{ background: c.color }" />
                     <span class="flex-1 font-semibold">{{ c.name }}</span>
-                    <button class="btn-ghost px-3" :aria-label="`Удалить ${c.name}`" @click="removeCategory(c)"><Icon name="trash" /></button>
+                    <button class="btn-ghost px-3" :aria-label="$t('Удалить :p0', { p0: c.name })" @click="removeCategory(c)"><Icon name="trash" /></button>
                 </li>
             </ul>
             <form class="flex gap-2" @submit.prevent="addCategory">
-                <input v-model="newCategory" class="field" placeholder="Новая категория" aria-label="Название категории">
+                <input v-model="newCategory" class="field" :placeholder="$t('Новая категория')" :aria-label="$t('Название категории')">
                 <button class="btn-primary"><Icon name="plus" /></button>
             </form>
         </Modal>

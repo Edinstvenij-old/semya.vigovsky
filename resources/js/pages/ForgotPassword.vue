@@ -22,20 +22,20 @@ async function submit() {
 </script>
 
 <template>
-    <AuthCard title="Забыли пароль?" subtitle="Пришлём ссылку для нового пароля">
+    <AuthCard :title="$t('Забыли пароль?')" :subtitle="$t('Пришлём ссылку для нового пароля')">
         <div v-if="sent" class="space-y-4">
             <p class="rounded-xl bg-emerald-50 p-4 text-emerald-900" role="status">{{ sent }}</p>
-            <RouterLink to="/login" class="btn-secondary w-full">Вернуться ко входу</RouterLink>
+            <RouterLink to="/login" class="btn-secondary w-full">{{ $t('Вернуться ко входу') }}</RouterLink>
         </div>
         <form v-else class="space-y-4" @submit.prevent="submit">
             <div>
-                <label class="field-label" for="email">Ваш email</label>
+                <label class="field-label" for="email">{{ $t('Ваш email') }}</label>
                 <input id="email" v-model="email" class="field" type="email" autocomplete="username" required>
             </div>
             <p v-if="error" class="field-error" role="alert">{{ error }}</p>
-            <button class="btn-primary w-full text-lg" :disabled="busy">Отправить ссылку</button>
-            <p class="text-slate-600">Нет доступа к почте? Попросите администратора семьи — он может создать ссылку для сброса в разделе «Семья».</p>
-            <RouterLink to="/login" class="btn-ghost w-full">Я вспомнил(а) пароль</RouterLink>
+            <button class="btn-primary w-full text-lg" :disabled="busy">{{ $t('Отправить ссылку') }}</button>
+            <p class="text-slate-600">{{ $t('Нет доступа к почте? Попросите администратора семьи — он может создать ссылку для сброса в разделе «Семья».') }}</p>
+            <RouterLink to="/login" class="btn-ghost w-full">{{ $t('Я вспомнил(а) пароль') }}</RouterLink>
         </form>
     </AuthCard>
 </template>

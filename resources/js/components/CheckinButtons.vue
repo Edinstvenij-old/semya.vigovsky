@@ -4,6 +4,7 @@ import { api, errorText } from '../api';
 import { toast } from '../store';
 import Icon from './Icon.vue';
 import Modal from './Modal.vue';
+import { t } from '../i18n';
 
 const props = defineProps({ trips: { type: Array, default: () => [] }, compact: Boolean });
 const emit = defineEmits(['done']);
@@ -50,7 +51,7 @@ async function send() {
             trip_id: tripId.value || null,
             ...coords,
         });
-        toast(data.queued ? 'Нет связи — статус отправится, когда появится интернет' : 'Статус отправлен семье');
+        toast(data.queued ? t('Нет связи — статус отправится, когда появится интернет') : t('Статус отправлен семье'));
         pending.value = null;
         if (!data.queued) emit('done', data);
     } catch (e) {
@@ -75,11 +76,11 @@ async function send() {
             </button>
         </div>
         <div class="mt-3 grid grid-cols-2 gap-3">
-            <button class="btn-secondary" @click="showAll = true"><Icon name="more" /> Другой статус</button>
-            <button class="btn-danger" @click="pick(types.find((t) => t.value === 'need_help'))"><Icon name="siren" /> Нужна помощь</button>
+            <button class="btn-secondary" @click="showAll = true"><Icon name="more" /> {{ $t('Другой статус') }}</button>
+            <button class="btn-danger" @click="pick(types.find((t) => t.value === 'need_help'))"><Icon name="siren" /> {{ $t('Нужна помощь') }}</button>
         </div>
 
-        <Modal v-if="showAll" title="Выберите статус" @close="showAll = false">
+        <Modal v-if="showAll" :title="$t('Выберите статус')" @close="showAll = false">
             <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <button v-for="t in types" :key="t.value" class="btn-secondary justify-start" @click="pick(t)">
                     <Icon :name="t.icon" /> {{ t.label }}
@@ -90,22 +91,22 @@ async function send() {
         <Modal v-if="pending" :title="pending.label" @close="pending = null">
             <form class="space-y-4" @submit.prevent="send">
                 <div>
-                    <label class="field-label" for="checkin-note">{{ pending.value === 'custom' ? 'Ваш статус' : 'Комментарий (необязательно)' }}</label>
+                    <label class="field-label" for="checkin-note">{{ pending.value === 'custom' ? $t('Ваш статус') : $t('Комментарий (необязательно)') }}</label>
                     <input id="checkin-note" v-model="note" class="field" :required="pending.value === 'custom'"
-                           placeholder="Например: рейс задержали на час">
+                           :placeholder="$t('Например: рейс задержали на час')">
                 </div>
                 <div v-if="props.trips.length">
-                    <label class="field-label" for="checkin-trip">Поездка</label>
+                    <label class="field-label" for="checkin-trip">{{ $t('Поездка') }}</label>
                     <select id="checkin-trip" v-model="tripId" class="field">
-                        <option value="">— без поездки —</option>
+                        <option value="">{{ $t('— без поездки —') }}</option>
                         <option v-for="trip in props.trips" :key="trip.id" :value="trip.id">{{ trip.title }}</option>
                     </select>
                 </div>
                 <label class="flex min-h-12 items-center gap-3 font-semibold">
                     <input v-model="withLocation" type="checkbox" class="h-6 w-6">
-                    <Icon name="map-pin" /> Добавить моё местоположение
+                    <Icon name="map-pin" /> {{ $t('Добавить моё местоположение') }}
                 </label>
-                <button class="btn-primary w-full text-lg" :disabled="busy"><Icon name="send" /> Отправить семье</button>
+                <button class="btn-primary w-full text-lg" :disabled="busy"><Icon name="send" /> {{ $t('Отправить семье') }}</button>
             </form>
         </Modal>
     </div>

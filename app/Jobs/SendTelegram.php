@@ -20,6 +20,7 @@ class SendTelegram implements ShouldQueue
         public ?string $body,
         public ?string $url,
         public bool $urgent,
+        public string $locale = 'ru',
     ) {}
 
     public function handle(Telegram $telegram): void
@@ -34,6 +35,7 @@ class SendTelegram implements ShouldQueue
             $text,
             $this->url ? rtrim(config('app.url'), '/').$this->url : null,
             silent: ! $this->urgent,
+            locale: $this->locale,
         );
     }
 }

@@ -44,7 +44,7 @@ class FamilyRestore
             $family = DB::transaction(function () use ($t, $name, $zip, &$storedFiles) {
                 $old = $t('families')->first();
                 $family = Family::create([
-                    'name' => $name ?: ($old['name'] ?? 'Семья').' (восстановлено)',
+                    'name' => $name ?: ($old['name'] ?? __('Семья')).__(' (восстановлено)'),
                     'backup_frequency' => $old['backup_frequency'] ?? 'weekly',
                     'backup_keep' => $old['backup_keep'] ?? 8,
                     'alert_regions' => isset($old['alert_regions']) ? json_decode($old['alert_regions'], true) : null,

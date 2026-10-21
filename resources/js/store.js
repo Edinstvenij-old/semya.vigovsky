@@ -1,5 +1,6 @@
 import { reactive } from 'vue';
 import { api, flushOutbox, setOutboxUser } from './api';
+import { getLocale, setLocale } from './i18n';
 import { connectRealtime, disconnectRealtime } from './realtime';
 
 /** Tiny global store: session user, app config, badge counters, toasts. */
@@ -21,6 +22,9 @@ export async function loadSession() {
 }
 
 export function setUser(user) {
+    // The language saved in the profile wins over the device language (reloads once if different).
+    const saved = user?.preferences?.locale;
+    if (saved && saved !== getLocale()) setLocale(saved);
     store.user = user;
     applyPreferences();
     setOutboxUser(user?.id ?? null);

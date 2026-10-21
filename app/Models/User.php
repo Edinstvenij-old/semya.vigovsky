@@ -30,6 +30,7 @@ class User extends Authenticatable
         'push_maintenance' => true, // silent
         'push_chat' => true,        // silent
         'telegram_all' => false,    // Telegram: urgent only unless switched on
+        'locale' => null,           // ru | uk; null = device language
     ];
 
     protected function casts(): array

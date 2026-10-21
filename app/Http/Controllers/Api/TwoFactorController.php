@@ -27,7 +27,7 @@ class TwoFactorController extends Controller
         $request->validate(['password' => ['required', 'current_password']]);
         $user = $request->user();
 
-        abort_if($user->hasTwoFactor(), 409, '2FA уже включена.');
+        abort_if($user->hasTwoFactor(), 409, __('2FA уже включена.'));
 
         $secret = $this->twoFactor->generateSecret();
         $user->forceFill(['two_factor_secret' => $secret, 'two_factor_confirmed_at' => null])->save();
@@ -45,7 +45,7 @@ class TwoFactorController extends Controller
         $user = $request->user();
 
         if (! $user->two_factor_secret || ! $this->twoFactor->verifyCode($user->two_factor_secret, $code)) {
-            throw ValidationException::withMessages(['code' => 'Неверный код. Проверьте время на телефоне.']);
+            throw ValidationException::withMessages(['code' => __('Неверный код. Проверьте время на телефоне.')]);
         }
 
         $codes = $this->twoFactor->recoveryCodes();
@@ -65,7 +65,7 @@ class TwoFactorController extends Controller
         $user = $request->user();
 
         if (! $user->hasTwoFactor() || ! $this->twoFactor->verifyUser($user, $code)) {
-            throw ValidationException::withMessages(['code' => 'Неверный код.']);
+            throw ValidationException::withMessages(['code' => __('Неверный код.')]);
         }
 
         $this->twoFactor->markSessionVerified($request);

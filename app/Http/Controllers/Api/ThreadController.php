@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Services\Notifier;
 use App\Support\FamilyContext;
 use App\Support\Live;
+use App\Support\Msg;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -175,8 +176,8 @@ class ThreadController extends Controller
             ->get();
 
         $this->notifier->send(
-            $thread->family_id, 'chat', "{$author->name} в «{$thread->title}»",
-            $body !== '' ? Str::limit($body, 140) : '📷 Фото', "/threads/{$thread->id}", $author, $recipients,
+            $thread->family_id, 'chat', Msg::t(':name в «:thread»', ['name' => $author->name, 'thread' => $thread->title]),
+            $body !== '' ? Str::limit($body, 140) : Msg::t('📷 Фото'), "/threads/{$thread->id}", $author, $recipients,
         );
 
         Live::emit($thread->family_id, 'message', ['thread_id' => $thread->id]);

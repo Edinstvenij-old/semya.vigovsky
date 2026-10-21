@@ -39,21 +39,21 @@ const months = computed(() => {
 
 <template>
     <div class="space-y-4">
-        <h1 class="page-title">Семейный фотоальбом</h1>
-        <p class="text-slate-600">Все фото из задач и чатов в одном месте. Билеты и документы сюда не попадают.</p>
+        <h1 class="page-title">{{ $t('Семейный фотоальбом') }}</h1>
+        <p class="text-slate-600">{{ $t('Все фото из задач и чатов в одном месте. Билеты и документы сюда не попадают.') }}</p>
 
         <section v-for="m in months" :key="m.label">
             <h2 class="mb-2 text-lg font-bold">{{ m.label }}</h2>
             <div class="grid grid-cols-3 gap-1 sm:grid-cols-4 lg:grid-cols-6">
                 <button v-for="p in m.items" :key="p.id" class="aspect-square overflow-hidden rounded-lg bg-slate-200"
-                        :aria-label="`Открыть фото: ${p.source?.label || p.name}`" @click="viewerIndex = p.index">
+                        :aria-label="$t('Открыть фото: :p0', { p0: p.source?.label || p.name })" @click="viewerIndex = p.index">
                     <img :src="p.thumb_url" :alt="p.name" class="h-full w-full object-cover" loading="lazy">
                 </button>
             </div>
         </section>
 
-        <EmptyState v-if="loaded && !photos.length" icon="image" text="Фото пока нет. Добавляйте их в задачи или отправляйте в чат." />
-        <button v-if="cursor" class="btn-secondary w-full" :disabled="loading" @click="loadMore">{{ loading ? 'Загрузка…' : 'Показать ещё' }}</button>
+        <EmptyState v-if="loaded && !photos.length" icon="image" :text="$t('Фото пока нет. Добавляйте их в задачи или отправляйте в чат.')" />
+        <button v-if="cursor" class="btn-secondary w-full" :disabled="loading" @click="loadMore">{{ loading ? $t('Загрузка…') : $t('Показать ещё') }}</button>
 
         <PhotoViewer v-if="viewerIndex !== null" :photos="photos" :start="viewerIndex" @close="viewerIndex = null" />
     </div>

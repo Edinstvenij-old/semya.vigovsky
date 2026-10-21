@@ -14,7 +14,7 @@ class EnsureFamilyAdmin
     public function handle(Request $request, Closure $next): Response
     {
         if (! $this->context->isAdmin()) {
-            return response()->json(['message' => 'Доступно только администратору семьи.'], 403);
+            return response()->json(['message' => __('Доступно только администратору семьи.')], 403);
         }
 
         return $next($request);

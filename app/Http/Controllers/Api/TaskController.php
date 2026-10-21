@@ -12,6 +12,7 @@ use App\Models\Thread;
 use App\Services\Notifier;
 use App\Support\FamilyContext;
 use App\Support\Live;
+use App\Support\Msg;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -115,7 +116,7 @@ class TaskController extends Controller
         }
 
         if ($oldStatus !== 'done' && $task->status === 'done') {
-            $this->notifier->send($task->family_id, 'projects', "Готово: {$task->title}", "Отметил(а) {$request->user()->name}", "/tasks/{$task->id}", $request->user());
+            $this->notifier->send($task->family_id, 'projects', Msg::t('Готово: :title', ['title' => $task->title]), Msg::t('Отметил(а) :name', ['name' => $request->user()->name]), "/tasks/{$task->id}", $request->user());
         }
 
         return response()->json($this->load($task));
@@ -261,7 +262,7 @@ class TaskController extends Controller
     private function notifyAssignee(Task $task, Request $request): void
     {
         if ($task->assignee) {
-            $this->notifier->send($task->family_id, 'projects', "Вам назначена задача: {$task->title}", "От {$request->user()->name}", "/tasks/{$task->id}", $request->user(), [$task->assignee]);
+            $this->notifier->send($task->family_id, 'projects', Msg::t('Вам назначена задача: :title', ['title' => $task->title]), Msg::t('От :name', ['name' => $request->user()->name]), "/tasks/{$task->id}", $request->user(), [$task->assignee]);
         }
     }
 }

@@ -21,7 +21,7 @@ class TelegramController extends Controller
 
     public function link(Request $request): JsonResponse
     {
-        abort_unless($this->telegram->configured() && $this->telegram->botUsername(), 422, 'Telegram-бот ещё не настроен администратором сервера.');
+        abort_unless($this->telegram->configured() && $this->telegram->botUsername(), 422, __('Telegram-бот ещё не настроен администратором сервера.'));
 
         $code = Str::random(24);
         Cache::put("telegram-link:{$code}", $request->user()->id, now()->addMinutes(15));
@@ -48,6 +48,9 @@ class TelegramController extends Controller
             return response()->json(['ok' => true]);
         }
 
+        // Answer in the language of the person's Telegram app (Ukrainian or Russian).
+        app()->setLocale(str_starts_with((string) $request->input('message.from.language_code'), 'uk') ? 'uk' : 'ru');
+
         if (preg_match('/^\/start\s+(\S+)$/', $text, $m)) {
             $userId = Cache::pull("telegram-link:{$m[1]}");
             $user = $userId ? User::find($userId) : null;
@@ -55,15 +58,15 @@ class TelegramController extends Controller
             if ($user) {
                 User::where('telegram_chat_id', $chatId)->update(['telegram_chat_id' => null]);
                 $user->forceFill(['telegram_chat_id' => $chatId])->save();
-                $this->telegram->sendMessage($chatId, 'Готово, '.Telegram::escape($user->name).'! Сюда будут приходить срочные новости семьи: статусы в пути и «все ли в порядке?». Отключить: /stop');
+                $this->telegram->sendMessage($chatId, __('Готово, :name! Сюда будут приходить срочные новости семьи: статусы в пути и «все ли в порядке?». Отключить: /stop', ['name' => Telegram::escape($user->name)]));
             } else {
-                $this->telegram->sendMessage($chatId, 'Ссылка устарела. Откройте приложение → Настройки → «Подключить Telegram» ещё раз.');
+                $this->telegram->sendMessage($chatId, __('Ссылка устарела. Откройте приложение → Настройки → «Подключить Telegram» ещё раз.'));
             }
         } elseif ($text === '/stop') {
             User::where('telegram_chat_id', $chatId)->update(['telegram_chat_id' => null]);
-            $this->telegram->sendMessage($chatId, 'Уведомления отключены. Подключить снова можно в настройках приложения.');
+            $this->telegram->sendMessage($chatId, __('Уведомления отключены. Подключить снова можно в настройках приложения.'));
         } else {
-            $this->telegram->sendMessage($chatId, 'Это бот семейного приложения. Подключение — в приложении: Настройки → «Подключить Telegram».');
+            $this->telegram->sendMessage($chatId, __('Это бот семейного приложения. Подключение — в приложении: Настройки → «Подключить Telegram».'));
         }
 
         return response()->json(['ok' => true]);

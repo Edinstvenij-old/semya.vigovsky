@@ -30,7 +30,7 @@ class SetFamilyContext
         }
 
         if (! $membership) {
-            return response()->json(['message' => 'Вы не состоите ни в одной семье.'], 403);
+            return response()->json(['message' => __('Вы не состоите ни в одной семье.')], 403);
         }
 
         $this->context->set($membership->family, $membership);

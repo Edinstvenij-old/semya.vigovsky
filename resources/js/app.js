@@ -3,6 +3,7 @@ import { createApp } from 'vue';
 import App from './App.vue';
 import { router } from './router';
 import { onApi } from './api';
+import { t } from './i18n';
 import { loadSession, startPolling, stopPolling, store } from './store';
 
 onApi('unauthorized', () => {
@@ -17,7 +18,9 @@ loadSession()
     .catch(() => (store.loaded = true))
     .finally(() => {
         if (store.user) startPolling();
-        createApp(App).use(router).mount('#app');
+        const app = createApp(App).use(router);
+        app.config.globalProperties.$t = t;
+        app.mount('#app');
     });
 
 if ('serviceWorker' in navigator) {

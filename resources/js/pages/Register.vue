@@ -30,15 +30,15 @@ async function submit() {
 </script>
 
 <template>
-    <AuthCard title="Новая семья" subtitle="Вы станете администратором">
+    <AuthCard :title="$t('Новая семья')" :subtitle="$t('Вы станете администратором')">
         <form class="space-y-4" @submit.prevent="submit">
             <div>
-                <label class="field-label" for="family">Название семьи</label>
-                <input id="family" v-model="form.family_name" class="field" placeholder="Например: Ивановы" required>
+                <label class="field-label" for="family">{{ $t('Название семьи') }}</label>
+                <input id="family" v-model="form.family_name" class="field" :placeholder="$t('Например: Ивановы')" required>
                 <p v-if="errors.family_name" class="field-error">{{ errors.family_name }}</p>
             </div>
             <div>
-                <label class="field-label" for="name">Ваше имя</label>
+                <label class="field-label" for="name">{{ $t('Ваше имя') }}</label>
                 <input id="name" v-model="form.name" class="field" autocomplete="name" required>
                 <p v-if="errors.name" class="field-error">{{ errors.name }}</p>
             </div>
@@ -48,17 +48,17 @@ async function submit() {
                 <p v-if="errors.email" class="field-error">{{ errors.email }}</p>
             </div>
             <div>
-                <label class="field-label" for="password">Пароль (минимум 10 символов)</label>
+                <label class="field-label" for="password">{{ $t('Пароль (минимум 10 символов)') }}</label>
                 <input id="password" v-model="form.password" class="field" type="password" autocomplete="new-password" required>
                 <p v-if="errors.password" class="field-error">{{ errors.password }}</p>
             </div>
             <div>
-                <label class="field-label" for="password2">Пароль ещё раз</label>
+                <label class="field-label" for="password2">{{ $t('Пароль ещё раз') }}</label>
                 <input id="password2" v-model="form.password_confirmation" class="field" type="password" autocomplete="new-password" required>
             </div>
             <p v-if="error" class="field-error" role="alert">{{ error }}</p>
-            <button class="btn-primary w-full text-lg" :disabled="busy">Создать семью</button>
-            <RouterLink to="/login" class="btn-ghost w-full">У меня уже есть аккаунт</RouterLink>
+            <button class="btn-primary w-full text-lg" :disabled="busy">{{ $t('Создать семью') }}</button>
+            <RouterLink to="/login" class="btn-ghost w-full">{{ $t('У меня уже есть аккаунт') }}</RouterLink>
         </form>
     </AuthCard>
 </template>

@@ -1,26 +1,27 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { store } from './store';
+import { t } from './i18n';
 
 const routes = [
-    { path: '/login', component: () => import('./pages/Login.vue'), meta: { guest: true, title: 'Вход' } },
-    { path: '/register', component: () => import('./pages/Register.vue'), meta: { guest: true, title: 'Новая семья' } },
-    { path: '/forgot-password', component: () => import('./pages/ForgotPassword.vue'), meta: { guest: true, title: 'Забыли пароль' } },
-    { path: '/reset-password/:token', component: () => import('./pages/ResetPassword.vue'), meta: { bare: true, public: true, title: 'Новый пароль' } },
-    { path: '/invite/:token', component: () => import('./pages/Invite.vue'), meta: { bare: true, public: true, title: 'Приглашение' } },
+    { path: '/login', component: () => import('./pages/Login.vue'), meta: { guest: true, title: t('Вход') } },
+    { path: '/register', component: () => import('./pages/Register.vue'), meta: { guest: true, title: t('Новая семья') } },
+    { path: '/forgot-password', component: () => import('./pages/ForgotPassword.vue'), meta: { guest: true, title: t('Забыли пароль') } },
+    { path: '/reset-password/:token', component: () => import('./pages/ResetPassword.vue'), meta: { bare: true, public: true, title: t('Новый пароль') } },
+    { path: '/invite/:token', component: () => import('./pages/Invite.vue'), meta: { bare: true, public: true, title: t('Приглашение') } },
 
-    { path: '/', component: () => import('./pages/Dashboard.vue'), meta: { title: 'Главная' } },
-    { path: '/tasks', component: () => import('./pages/Tasks.vue'), meta: { title: 'Задачи' } },
-    { path: '/tasks/:id', component: () => import('./pages/TaskDetail.vue'), meta: { title: 'Задача' } },
-    { path: '/photos', component: () => import('./pages/Photos.vue'), meta: { title: 'Фотоальбом' } },
-    { path: '/shopping', component: () => import('./pages/Shopping.vue'), meta: { title: 'Покупки' } },
-    { path: '/home', component: () => import('./pages/HomeMaintenance.vue'), meta: { title: 'Дом и обслуживание' } },
-    { path: '/travel', component: () => import('./pages/Travel.vue'), meta: { title: 'Поездки' } },
-    { path: '/documents', component: () => import('./pages/Documents.vue'), meta: { title: 'Билеты и брони' } },
-    { path: '/threads', component: () => import('./pages/Threads.vue'), meta: { title: 'Чаты' } },
-    { path: '/threads/:id', component: () => import('./pages/ThreadView.vue'), meta: { title: 'Обсуждение' } },
-    { path: '/notifications', component: () => import('./pages/Notifications.vue'), meta: { title: 'Уведомления' } },
-    { path: '/family', component: () => import('./pages/Family.vue'), meta: { title: 'Семья' } },
-    { path: '/settings', component: () => import('./pages/Settings.vue'), meta: { title: 'Настройки' } },
+    { path: '/', component: () => import('./pages/Dashboard.vue'), meta: { title: t('Главная') } },
+    { path: '/tasks', component: () => import('./pages/Tasks.vue'), meta: { title: t('Задачи') } },
+    { path: '/tasks/:id', component: () => import('./pages/TaskDetail.vue'), meta: { title: t('Задача') } },
+    { path: '/photos', component: () => import('./pages/Photos.vue'), meta: { title: t('Фотоальбом') } },
+    { path: '/shopping', component: () => import('./pages/Shopping.vue'), meta: { title: t('Покупки') } },
+    { path: '/home', component: () => import('./pages/HomeMaintenance.vue'), meta: { title: t('Дом и обслуживание') } },
+    { path: '/travel', component: () => import('./pages/Travel.vue'), meta: { title: t('Поездки') } },
+    { path: '/documents', component: () => import('./pages/Documents.vue'), meta: { title: t('Билеты и брони') } },
+    { path: '/threads', component: () => import('./pages/Threads.vue'), meta: { title: t('Чаты') } },
+    { path: '/threads/:id', component: () => import('./pages/ThreadView.vue'), meta: { title: t('Обсуждение') } },
+    { path: '/notifications', component: () => import('./pages/Notifications.vue'), meta: { title: t('Уведомления') } },
+    { path: '/family', component: () => import('./pages/Family.vue'), meta: { title: t('Семья') } },
+    { path: '/settings', component: () => import('./pages/Settings.vue'), meta: { title: t('Настройки') } },
     { path: '/:pathMatch(.*)*', redirect: '/' },
 ];
 

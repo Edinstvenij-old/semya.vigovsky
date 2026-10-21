@@ -10,15 +10,16 @@ import StatusCard from '../components/StatusCard.vue';
 import { date, dueText, daysUntil } from '../format';
 import { onLive } from '../live';
 import { simpleMode, store } from '../store';
+import { t } from '../i18n';
 
 const data = ref(null);
 
 const greeting = computed(() => {
     const h = new Date().getHours();
-    if (h < 5) return 'Доброй ночи';
-    if (h < 12) return 'Доброе утро';
-    if (h < 18) return 'Добрый день';
-    return 'Добрый вечер';
+    if (h < 5) return t('Доброй ночи');
+    if (h < 12) return t('Доброе утро');
+    if (h < 18) return t('Добрый день');
+    return t('Добрый вечер');
 });
 
 async function load() {
@@ -33,12 +34,12 @@ onMounted(() => {
 onBeforeUnmount(() => offs.forEach((off) => off()));
 
 const tiles = computed(() => [
-    { to: '/travel', icon: 'plane', label: 'Кто где', color: 'bg-brand-700' },
-    { to: '/threads', icon: 'message-circle', label: 'Сообщения', color: 'bg-emerald-700', badge: store.counts.unread_messages },
-    { to: '/photos', icon: 'image', label: 'Фото', color: 'bg-sky-700' },
-    { to: '/home', icon: 'calendar-days', label: 'Дом', color: 'bg-purple-700' },
-    { to: '/shopping', icon: 'shopping-cart', label: 'Покупки', color: 'bg-teal-700', badge: store.counts.shopping_open },
-    { to: '/tasks', icon: 'list-checks', label: 'Задачи', color: 'bg-orange-700' },
+    { to: '/travel', icon: 'plane', label: t('Кто где'), color: 'bg-brand-700' },
+    { to: '/threads', icon: 'message-circle', label: t('Сообщения'), color: 'bg-emerald-700', badge: store.counts.unread_messages },
+    { to: '/photos', icon: 'image', label: t('Фото'), color: 'bg-sky-700' },
+    { to: '/home', icon: 'calendar-days', label: t('Дом'), color: 'bg-purple-700' },
+    { to: '/shopping', icon: 'shopping-cart', label: t('Покупки'), color: 'bg-teal-700', badge: store.counts.shopping_open },
+    { to: '/tasks', icon: 'list-checks', label: t('Задачи'), color: 'bg-orange-700' },
 ]);
 </script>
 
@@ -61,23 +62,23 @@ const tiles = computed(() => [
         </div>
 
         <section class="card" aria-labelledby="statuses">
-            <h2 id="statuses" class="mb-3 flex items-center gap-2 text-xl font-bold"><Icon name="map-pin" /> Где все</h2>
+            <h2 id="statuses" class="mb-3 flex items-center gap-2 text-xl font-bold"><Icon name="map-pin" /> {{ $t('Где все') }}</h2>
             <div v-if="data?.statuses.length" class="divide-y divide-slate-200">
                 <StatusCard v-for="c in data.statuses" :key="c.id" :checkin="c" class="py-3 first:pt-0 last:pb-0" />
             </div>
-            <p v-else-if="data" class="text-slate-600">За последние две недели статусов не было.</p>
+            <p v-else-if="data" class="text-slate-600">{{ $t('За последние две недели статусов не было.') }}</p>
         </section>
 
         <section v-if="store.user.can_write" class="card" aria-labelledby="checkin">
-            <h2 id="checkin" class="mb-3 flex items-center gap-2 text-xl font-bold"><Icon name="send" /> Быстрый статус</h2>
+            <h2 id="checkin" class="mb-3 flex items-center gap-2 text-xl font-bold"><Icon name="send" /> {{ $t('Быстрый статус') }}</h2>
             <CheckinButtons @done="load" />
         </section>
 
         <div class="grid gap-6 lg:grid-cols-2 [&>*]:min-w-0">
             <section v-if="!simpleMode()" class="card" aria-labelledby="mytasks">
                 <div class="mb-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-                    <h2 id="mytasks" class="flex items-center gap-2 text-xl font-bold"><Icon name="list-checks" /> Мои задачи</h2>
-                    <RouterLink to="/tasks" class="font-semibold text-brand-700 underline">Все</RouterLink>
+                    <h2 id="mytasks" class="flex items-center gap-2 text-xl font-bold"><Icon name="list-checks" /> {{ $t('Мои задачи') }}</h2>
+                    <RouterLink to="/tasks" class="font-semibold text-brand-700 underline">{{ $t('Все') }}</RouterLink>
                 </div>
                 <ul v-if="data?.my_tasks.length" class="space-y-2">
                     <li v-for="t in data.my_tasks" :key="t.id">
@@ -90,13 +91,13 @@ const tiles = computed(() => [
                         </RouterLink>
                     </li>
                 </ul>
-                <EmptyState v-else-if="data" icon="circle-check" text="Назначенных задач нет" />
+                <EmptyState v-else-if="data" icon="circle-check" :text="$t('Назначенных задач нет')" />
             </section>
 
             <section class="card" aria-labelledby="due">
                 <div class="mb-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-                    <h2 id="due" class="flex items-center gap-2 text-xl font-bold"><Icon name="wrench" /> Скоро по дому</h2>
-                    <RouterLink to="/home" class="font-semibold text-brand-700 underline">Календарь</RouterLink>
+                    <h2 id="due" class="flex items-center gap-2 text-xl font-bold"><Icon name="wrench" /> {{ $t('Скоро по дому') }}</h2>
+                    <RouterLink to="/home" class="font-semibold text-brand-700 underline">{{ $t('Календарь') }}</RouterLink>
                 </div>
                 <ul v-if="data?.maintenance_due.length" class="space-y-2">
                     <li v-for="m in data.maintenance_due" :key="m.id" class="flex min-h-12 flex-wrap items-center gap-x-3 gap-y-1 rounded-xl p-2">
@@ -107,7 +108,7 @@ const tiles = computed(() => [
                         </span>
                     </li>
                 </ul>
-                <EmptyState v-else-if="data" icon="circle-check" text="В ближайшие две недели ничего" />
+                <EmptyState v-else-if="data" icon="circle-check" :text="$t('В ближайшие две недели ничего')" />
             </section>
         </div>
     </div>
