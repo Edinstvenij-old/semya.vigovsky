@@ -29,6 +29,7 @@ const tiles = computed(() => [
     { to: '/travel', icon: 'plane', label: 'Кто где', color: 'bg-brand-700' },
     { to: '/threads', icon: 'message-circle', label: 'Сообщения', color: 'bg-emerald-700', badge: store.counts.unread_messages },
     { to: '/home', icon: 'calendar-days', label: 'Дом', color: 'bg-purple-700' },
+    { to: '/shopping', icon: 'shopping-cart', label: 'Покупки', color: 'bg-teal-700', badge: store.counts.shopping_open },
     { to: '/tasks', icon: 'list-checks', label: 'Задачи и фото', color: 'bg-orange-700' },
 ]);
 </script>

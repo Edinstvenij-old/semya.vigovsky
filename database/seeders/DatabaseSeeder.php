@@ -9,6 +9,7 @@ use App\Models\Family;
 use App\Models\FamilyMember;
 use App\Models\MaintenanceItem;
 use App\Models\Message;
+use App\Models\ShoppingItem;
 use App\Models\Task;
 use App\Models\TaskCategory;
 use App\Models\Thread;
@@ -142,6 +143,10 @@ class DatabaseSeeder extends Seeder
         }
         Checkin::create(['family_id' => $family->id, 'user_id' => $mama->id, 'type' => CheckinType::BackHome])
             ->forceFill(['created_at' => now()->subHours(2)])->save();
+
+        foreach ([['Хлеб', null, $mama], ['Молоко', '2 л', $mama], ['Батарейки AA', '8 шт', $papa], ['Корм коту', null, $maria]] as [$text, $qty, $who]) {
+            ShoppingItem::create(['family_id' => $family->id, 'added_by' => $who->id, 'text' => $text, 'quantity' => $qty]);
+        }
 
         $general = Thread::where('family_id', $family->id)->first();
         $weekend = Thread::create(['family_id' => $family->id, 'created_by' => $mama->id, 'title' => 'Семейный ужин в субботу', 'icon' => 'calendar-days']);

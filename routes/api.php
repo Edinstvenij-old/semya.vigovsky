@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PasswordResetController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\SafetyController;
+use App\Http\Controllers\Api\ShoppingController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\ThreadController;
 use App\Http\Controllers\Api\TravelController;
@@ -96,6 +97,12 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::patch('maintenance/{item}', [MaintenanceController::class, 'update']);
             Route::delete('maintenance/{item}', [MaintenanceController::class, 'destroy']);
             Route::post('maintenance/{item}/complete', [MaintenanceController::class, 'complete']);
+
+            Route::get('shopping', [ShoppingController::class, 'index']);
+            Route::post('shopping', [ShoppingController::class, 'store']);
+            Route::post('shopping/clear-done', [ShoppingController::class, 'clearDone']);
+            Route::patch('shopping/{item}', [ShoppingController::class, 'update']);
+            Route::delete('shopping/{item}', [ShoppingController::class, 'destroy']);
 
             Route::post('safety-checks', [SafetyController::class, 'store']);
             Route::post('safety-checks/{check}/close', [SafetyController::class, 'close']);

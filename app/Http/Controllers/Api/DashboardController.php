@@ -9,6 +9,7 @@ use App\Models\FamilyNotification;
 use App\Models\MaintenanceItem;
 use App\Models\Message;
 use App\Models\SafetyCheck;
+use App\Models\ShoppingItem;
 use App\Models\Task;
 use App\Models\Thread;
 use App\Support\FamilyContext;
@@ -63,6 +64,7 @@ class DashboardController extends Controller
             'latest_urgent' => (clone $notifications)->where('urgent', true)->latest('id')->first(['id', 'title', 'body', 'url', 'created_at']),
             'threads' => Thread::count(),
             'open_tasks' => Task::where('status', '!=', 'done')->count(),
+            'shopping_open' => ShoppingItem::where('is_done', false)->count(),
             'overdue_maintenance' => MaintenanceItem::where('next_due_on', '<', today())->count(),
             // Open "is everyone OK?" roll call this user has not answered yet.
             'safety_pending' => SafetyCheck::open()
