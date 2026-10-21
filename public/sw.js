@@ -17,8 +17,7 @@ self.addEventListener('push', (event) => {
     const urgent = !!data.urgent;
     const options = {
         body: data.body || '',
-        icon: '/icon.svg',
-        badge: '/icon.svg',
+        icon: '/icon-192.png',
         tag: urgent ? `urgent-${data.id}` : data.channel || 'family-hub',
         renotify: urgent,
         silent: !urgent,
