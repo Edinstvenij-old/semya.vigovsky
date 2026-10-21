@@ -50,9 +50,9 @@ async function send() {
             trip_id: tripId.value || null,
             ...coords,
         });
-        toast('Статус отправлен семье');
+        toast(data.queued ? 'Нет связи — статус отправится, когда появится интернет' : 'Статус отправлен семье');
         pending.value = null;
-        emit('done', data);
+        if (!data.queued) emit('done', data);
     } catch (e) {
         toast(errorText(e), 'error');
     } finally {

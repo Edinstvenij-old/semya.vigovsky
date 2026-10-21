@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { reactive } from 'vue';
 
 /**
  * Axios instance for the Laravel API. Sanctum SPA auth: session cookie +
@@ -10,6 +11,9 @@ export const api = axios.create({
     withXSRFToken: true,
     headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
 });
+
+/** Connection state shown by the layout: offline, data from cache, queued requests. */
+export const net = reactive({ offline: !navigator.onLine, stale: false, queued: 0 });
 
 let csrfReady = false;
 
@@ -25,21 +29,116 @@ export function onApi(event, fn) {
     listeners[event].push(fn);
 }
 
+// --- Outbox: important actions made without a connection are sent later -------
+//
+// Statuses, "I'm safe" answers, text messages and shopping-list changes are
+// stored in localStorage when the network is down and replayed in order once it
+// is back. Photos are not queued (too big for local storage).
+const OUTBOX_KEY = 'fh-outbox';
+const QUEUEABLE = [
+    /^\/checkins$/,
+    /^\/safety-checks\/\d+\/respond$/,
+    /^\/threads\/\d+\/messages$/,
+    /^\/shopping(\/\d+)?$/,
+];
+let currentUserId = null;
+
+export function setOutboxUser(id) {
+    currentUserId = id;
+    net.queued = readOutbox().filter((r) => r.user === id).length;
+}
+
+function readOutbox() {
+    try {
+        return JSON.parse(localStorage.getItem(OUTBOX_KEY) || '[]');
+    } catch {
+        return [];
+    }
+}
+
+function writeOutbox(items) {
+    try {
+        localStorage.setItem(OUTBOX_KEY, JSON.stringify(items));
+    } catch {
+        /* storage blocked: nothing we can do, the request is lost */
+    }
+    net.queued = items.filter((r) => r.user === currentUserId).length;
+}
+
+export function clearOutbox() {
+    writeOutbox([]);
+}
+
+function queueable(config) {
+    return ['post', 'patch'].includes(config.method)
+        && !(config.data instanceof FormData)
+        && QUEUEABLE.some((re) => re.test(config.url));
+}
+
+let flushing = false;
+export async function flushOutbox() {
+    if (flushing || !currentUserId || !navigator.onLine) return;
+    flushing = true;
+    try {
+        for (const item of readOutbox()) {
+            if (item.user !== currentUserId) continue;
+            try {
+                await api.request({ method: item.method, url: item.url, data: item.data, _fromOutbox: true });
+            } catch (e) {
+                if (!e.response) break; // still offline: keep the rest for later
+                // Rejected by the server (e.g. roll call closed meanwhile): drop it.
+            }
+            writeOutbox(readOutbox().filter((r) => r.id !== item.id));
+        }
+    } finally {
+        flushing = false;
+    }
+}
+
+window.addEventListener('online', () => {
+    net.offline = false;
+    flushOutbox();
+});
+window.addEventListener('offline', () => (net.offline = true));
+setInterval(flushOutbox, 30000);
+
 api.interceptors.request.use(async (config) => {
-    if (config.method !== 'get') await ensureCsrf();
+    if (config.method !== 'get') {
+        try {
+            await ensureCsrf();
+        } catch {
+            /* offline: the request fails below and may be queued */
+        }
+    }
     return config;
 });
 
 api.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        if (response.config.method === 'get') {
+            net.stale = response.headers['x-from-cache'] === '1';
+            if (!net.stale) net.offline = false;
+        }
+        return response;
+    },
     async (error) => {
+        const config = error.config || {};
         const status = error.response?.status;
-        if (status === 419 && !error.config._retried) {
+
+        if (!error.response && queueable(config) && !config._fromOutbox && currentUserId) {
+            net.offline = true;
+            const data = typeof config.data === 'string' ? JSON.parse(config.data || '{}') : config.data;
+            const url = config.url.replace(/^\/api/, '');
+            writeOutbox([...readOutbox(), { id: Date.now() + Math.random(), user: currentUserId, method: config.method, url, data }]);
+            return { data: { queued: true }, status: 202, config, headers: {} };
+        }
+
+        if (status === 419 && !config._retried) {
             // CSRF token expired: refresh once and retry.
             csrfReady = false;
             await ensureCsrf();
-            error.config._retried = true;
-            return api.request(error.config);
+            config._retried = true;
+            return api.request(config);
         }
         if (status === 401) listeners.unauthorized.forEach((fn) => fn());
         if (status === 423) listeners.twoFactor.forEach((fn) => fn(error.response.data));
@@ -51,7 +150,8 @@ api.interceptors.response.use(
 export function errorText(error) {
     const data = error?.response?.data;
     if (data?.errors) return Object.values(data.errors)[0]?.[0];
-    return data?.message || 'Что-то пошло не так. Проверьте интернет и попробуйте ещё раз.';
+    if (!error?.response) return 'Нет связи с сервером. Проверьте интернет и попробуйте ещё раз.';
+    return data?.message || 'Что-то пошло не так. Попробуйте ещё раз.';
 }
 
 /** Validation errors as { field: 'message' }. */

@@ -1,8 +1,8 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { api } from '../api';
-import { simpleMode, stopPolling, store } from '../store';
+import { api, clearOutbox, net } from '../api';
+import { clearOfflineCache, simpleMode, stopPolling, store } from '../store';
 import Avatar from './Avatar.vue';
 import Icon from './Icon.vue';
 
@@ -50,7 +50,10 @@ document.addEventListener('keydown', onKey);
 onBeforeUnmount(() => document.removeEventListener('keydown', onKey));
 
 async function logout() {
+    if (net.queued && !confirm(`Есть неотправленное (${net.queued}). Если выйти сейчас, оно потеряется. Выйти?`)) return;
     closeMenu();
+    clearOutbox();
+    clearOfflineCache();
     await api.post('/logout');
     stopPolling();
     store.user = null;
@@ -146,6 +149,16 @@ function openUrgent() {
                         <Icon name="log-out" /> Выйти
                     </button>
                 </nav>
+            </div>
+
+            <!-- Offline / cached data / queued actions -->
+            <div v-if="net.offline || net.stale || net.queued" role="status"
+                 class="flex items-center gap-2 bg-slate-800 px-4 py-2 text-sm font-semibold text-white">
+                <Icon name="refresh-cw" />
+                <span class="flex-1">
+                    <template v-if="net.offline || net.stale">Нет связи — показаны сохранённые данные.</template>
+                    <template v-if="net.queued"> Ждут отправки: {{ net.queued }}. Отправим сами, когда появится интернет.</template>
+                </span>
             </div>
 
             <!-- Unanswered "is everyone OK?" roll call: visible on every page until answered -->

@@ -1,5 +1,5 @@
 import { reactive } from 'vue';
-import { api } from './api';
+import { api, flushOutbox, setOutboxUser } from './api';
 
 /** Tiny global store: session user, app config, badge counters, toasts. */
 export const store = reactive({
@@ -22,6 +22,26 @@ export async function loadSession() {
 export function setUser(user) {
     store.user = user;
     applyPreferences();
+    setOutboxUser(user?.id ?? null);
+    if (user) {
+        forgetOtherUsersCache(user.id);
+        flushOutbox();
+    }
+}
+
+/** Cached API answers belong to one person: drop them when someone else signs in on this device. */
+export function clearOfflineCache() {
+    navigator.serviceWorker?.controller?.postMessage({ type: 'clear-data' });
+}
+
+function forgetOtherUsersCache(userId) {
+    try {
+        const last = localStorage.getItem('fh-last-user');
+        if (last && Number(last) !== userId) clearOfflineCache();
+        localStorage.setItem('fh-last-user', String(userId));
+    } catch {
+        /* storage unavailable */
+    }
 }
 
 /** Applies accessibility preferences to the document root. */
