@@ -28,3 +28,8 @@ Thumbs.db
 
 # Local editor/agent preview config (machine-specific paths)
 /.claude/
+
+# Playwright
+/test-results/
+/playwright-report/
+/database/e2e.sqlite
