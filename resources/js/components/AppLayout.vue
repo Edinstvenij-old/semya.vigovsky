@@ -199,8 +199,8 @@ function openUrgent() {
                     v-for="item in nav"
                     :key="item.to"
                     :to="item.to"
-                    class="relative flex min-h-16 min-w-0 flex-col items-center justify-center gap-0.5 px-0.5 font-semibold text-slate-600"
-                    :style="{ fontSize: 'min(0.875rem, 3.8vw)' /* labels stay on one line even with the largest text size */ }"
+                    class="relative flex min-h-16 min-w-0 flex-col items-center justify-center gap-0.5 font-semibold tracking-tight text-slate-600"
+                    :style="{ fontSize: 'min(0.875rem, 3.4vw)' /* one line even on a 320 px phone with a wide system font (e.g. DejaVu on Linux) */ }"
                     :active-class="item.exact ? '' : '!text-brand-700'"
                     exact-active-class="!text-brand-700"
                 >
