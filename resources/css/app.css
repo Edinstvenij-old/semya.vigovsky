@@ -24,6 +24,18 @@
         -webkit-text-size-adjust: 100%;
     }
 
+    /*
+     * Small phones + the largest text size: nothing may push the page wider than the screen.
+     * Long words wrap instead of overflowing, and grid/flex items are allowed to shrink below
+     * their content width (the default min-width: auto is what made cards stick out).
+     */
+    header, main, nav, [role='dialog'] {
+        overflow-wrap: anywhere;
+    }
+    .grid > *, .flex > * {
+        min-width: 0;
+    }
+
     body {
         @apply bg-slate-100 text-slate-900 antialiased;
         line-height: 1.5;

@@ -147,11 +147,11 @@ function onSaved(task) {
                              @dragstart="dragged = t"
                              @click="router.push(`/tasks/${t.id}`)">
                         <div class="flex items-start gap-2">
-                            <span v-if="t.priority === 'high'" class="chip bg-red-100 text-red-800">Срочно</span>
                             <h3 class="flex-1 font-bold" :class="t.status === 'done' ? 'text-slate-500 line-through' : ''">{{ t.title }}</h3>
                             <Avatar v-if="t.assignee" :user="t.assignee" size="sm" />
                         </div>
                         <div class="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-700">
+                            <span v-if="t.priority === 'high'" class="chip bg-red-100 text-red-800">Срочно</span>
                             <span v-if="t.category" class="chip text-white" :style="{ background: t.category.color }">{{ t.category.name }}</span>
                             <span v-if="t.checklist_count" class="chip bg-slate-100"><Icon name="list-checks" /> {{ t.checklist_done_count }}/{{ t.checklist_count }}</span>
                             <span v-if="t.attachments_count" class="chip bg-slate-100"><Icon name="camera" /> {{ t.attachments_count }}</span>

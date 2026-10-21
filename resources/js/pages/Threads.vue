@@ -61,7 +61,7 @@ async function create() {
                             <template v-else>Пока без сообщений</template>
                         </p>
                     </div>
-                    <div class="flex shrink-0 flex-col items-end gap-1">
+                    <div class="flex max-w-[35%] flex-col items-end gap-1 text-right">
                         <span class="text-sm text-slate-600">{{ ago(t.last_message_at || t.created_at) }}</span>
                         <span v-if="t.unread_count" class="rounded-full bg-red-600 px-2 text-sm font-bold text-white">{{ t.unread_count }}</span>
                     </div>

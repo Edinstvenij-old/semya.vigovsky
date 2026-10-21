@@ -130,12 +130,13 @@ async function turnOff2fa() {
             <fieldset>
                 <legend class="field-label">Размер текста</legend>
                 <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    <button v-for="s in SCALES" :key="s.value" class="btn"
+                    <button v-for="s in SCALES" :key="s.value" class="btn flex-col gap-0 py-2 leading-tight"
                             :class="prefs.font_scale === s.value ? 'bg-brand-700 text-white' : 'bg-white ring-2 ring-slate-300'"
                             :aria-pressed="prefs.font_scale === s.value"
-                            :style="{ fontSize: `${s.value}rem` }"
                             @click="savePrefs({ font_scale: s.value })">
-                        Аа <span class="text-sm">{{ s.label }}</span>
+                        <!-- Preview letters in 16px-based sizes, so the buttons fit whatever size is active now. -->
+                        <span :style="{ fontSize: `${16 * s.value}px` }" aria-hidden="true">Аа</span>
+                        <span class="text-sm">{{ s.label }}</span>
                     </button>
                 </div>
             </fieldset>

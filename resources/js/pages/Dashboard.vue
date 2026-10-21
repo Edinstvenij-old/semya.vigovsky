@@ -60,9 +60,9 @@ const tiles = computed(() => [
             <CheckinButtons @done="load" />
         </section>
 
-        <div class="grid gap-6 lg:grid-cols-2">
+        <div class="grid gap-6 lg:grid-cols-2 [&>*]:min-w-0">
             <section v-if="!simpleMode()" class="card" aria-labelledby="mytasks">
-                <div class="mb-3 flex items-center justify-between">
+                <div class="mb-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                     <h2 id="mytasks" class="flex items-center gap-2 text-xl font-bold"><Icon name="list-checks" /> Мои задачи</h2>
                     <RouterLink to="/tasks" class="font-semibold text-brand-700 underline">Все</RouterLink>
                 </div>
@@ -70,8 +70,8 @@ const tiles = computed(() => [
                     <li v-for="t in data.my_tasks" :key="t.id">
                         <RouterLink :to="`/tasks/${t.id}`" class="flex min-h-12 items-center gap-3 rounded-xl p-2 hover:bg-slate-100">
                             <span class="h-3 w-3 shrink-0 rounded-full" :style="{ background: t.category?.color || '#64748b' }" />
-                            <span class="flex-1 font-semibold">{{ t.title }}</span>
-                            <span v-if="t.due_date" class="text-sm" :class="daysUntil(t.due_date) < 0 ? 'font-bold text-red-700' : 'text-slate-600'">
+                            <span class="min-w-0 flex-1 break-words font-semibold">{{ t.title }}</span>
+                            <span v-if="t.due_date" class="shrink-0 text-sm" :class="daysUntil(t.due_date) < 0 ? 'font-bold text-red-700' : 'text-slate-600'">
                                 {{ date(t.due_date) }}
                             </span>
                         </RouterLink>
@@ -81,14 +81,14 @@ const tiles = computed(() => [
             </section>
 
             <section class="card" aria-labelledby="due">
-                <div class="mb-3 flex items-center justify-between">
+                <div class="mb-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                     <h2 id="due" class="flex items-center gap-2 text-xl font-bold"><Icon name="wrench" /> Скоро по дому</h2>
                     <RouterLink to="/home" class="font-semibold text-brand-700 underline">Календарь</RouterLink>
                 </div>
                 <ul v-if="data?.maintenance_due.length" class="space-y-2">
-                    <li v-for="m in data.maintenance_due" :key="m.id" class="flex min-h-12 items-center gap-3 rounded-xl p-2">
+                    <li v-for="m in data.maintenance_due" :key="m.id" class="flex min-h-12 flex-wrap items-center gap-x-3 gap-y-1 rounded-xl p-2">
                         <Icon :name="m.kind === 'bill' ? 'zap' : m.kind === 'consumable' ? 'droplets' : 'wrench'" />
-                        <span class="flex-1 font-semibold">{{ m.title }}</span>
+                        <span class="min-w-0 flex-1 break-words font-semibold">{{ m.title }}</span>
                         <span class="chip" :class="daysUntil(m.next_due_on) < 0 ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-900'">
                             {{ dueText(m.next_due_on) }}
                         </span>
