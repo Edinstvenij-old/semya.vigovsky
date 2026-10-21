@@ -66,7 +66,7 @@ async function save() {
         if (editing.value.id) await api.patch(`/maintenance/${editing.value.id}`, payload);
         else await api.post('/maintenance', payload);
         editing.value = null;
-        toast('Сохранено');
+        toast(t('Сохранено'));
         load();
     } catch (e) {
         errors.value = fieldErrors(e);
@@ -89,7 +89,7 @@ function openComplete(item) {
 async function complete() {
     try {
         await api.post(`/maintenance/${completing.value.id}/complete`, done);
-        toast('Отмечено! Следующий срок пересчитан');
+        toast(t('Отмечено! Следующий срок пересчитан'));
         completing.value = null;
         load();
     } catch (e) {

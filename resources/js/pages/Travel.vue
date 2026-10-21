@@ -54,7 +54,7 @@ async function saveTrip() {
         if (editingTrip.value.id) await api.patch(`/trips/${editingTrip.value.id}`, payload);
         else await api.post('/trips', payload);
         editingTrip.value = null;
-        toast('Поездка сохранена');
+        toast(t('Поездка сохранена'));
         load();
     } catch (e) {
         errors.value = fieldErrors(e);

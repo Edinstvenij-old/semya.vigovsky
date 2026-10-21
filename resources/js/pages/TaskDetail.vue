@@ -50,7 +50,7 @@ const progress = computed(() => {
 async function setStatus(status) {
     await api.patch(`/tasks/${task.value.id}`, { status });
     await load();
-    if (status === 'done') toast('Задача выполнена!');
+    if (status === 'done') toast(t('Задача выполнена!'));
 }
 
 async function toggleItem(item) {
@@ -96,7 +96,7 @@ async function upload(kind, event) {
         await appendImages(body, files);
         await api.post(`/tasks/${task.value.id}/attachments`, body);
         await load();
-        toast('Файлы загружены');
+        toast(t('Файлы загружены'));
     } catch (e) {
         toast(errorText(e), 'error');
     } finally {
@@ -120,7 +120,7 @@ async function discuss() {
 async function destroy() {
     if (!confirm(t('Удалить задачу со всеми фото?'))) return;
     await api.delete(`/tasks/${task.value.id}`);
-    toast('Задача удалена');
+    toast(t('Задача удалена'));
     router.push('/tasks');
 }
 

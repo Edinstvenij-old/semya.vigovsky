@@ -104,7 +104,7 @@ async function save() {
         await appendImages(body, files.value, { maxSide: 2560, quality: 0.9 });
         await api.post(editing.value.id ? `/documents/${editing.value.id}` : '/documents', body);
         editing.value = null;
-        toast('Сохранено');
+        toast(t('Сохранено'));
         load();
     } catch (e) {
         errors.value = fieldErrors(e);

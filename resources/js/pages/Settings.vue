@@ -34,7 +34,7 @@ async function linkTelegram() {
                 telegramWaiting.value = false;
                 if (me?.telegram_linked) {
                     setUser(me);
-                    toast('Telegram подключён');
+                    toast(t('Telegram подключён'));
                 }
             }
         }, 3000);
@@ -46,7 +46,7 @@ async function linkTelegram() {
 async function unlinkTelegram() {
     await api.delete('/telegram/link');
     setUser({ ...store.user, telegram_linked: false });
-    toast('Telegram отключён');
+    toast(t('Telegram отключён'));
 }
 
 onBeforeUnmount(() => clearInterval(telegramTimer));
@@ -81,7 +81,7 @@ onMounted(async () => {
 async function saveProfile() {
     try {
         setUser((await api.patch('/profile', profile)).data.user);
-        toast('Профиль сохранён');
+        toast(t('Профиль сохранён'));
     } catch (e) {
         toast(errorText(e), 'error');
     }
@@ -107,7 +107,7 @@ async function changePassword() {
     try {
         await api.put('/profile/password', pwd);
         Object.assign(pwd, { current_password: '', password: '', password_confirmation: '' });
-        toast('Пароль изменён');
+        toast(t('Пароль изменён'));
     } catch (e) {
         pwdErrors.value = fieldErrors(e);
     }
@@ -132,9 +132,9 @@ async function enablePush() {
         });
         await api.post('/push/subscribe', sub.toJSON());
         pushState.value = 'on';
-        toast('Уведомления на этом устройстве включены');
+        toast(t('Уведомления на этом устройстве включены'));
     } catch (e) {
-        toast('Не удалось включить уведомления: ' + (e.message || e), 'error');
+        toast(t('Не удалось включить уведомления: ') + (e.message || e), 'error');
     }
 }
 
@@ -154,7 +154,7 @@ async function turnOff2fa() {
         setUser({ ...store.user, two_factor_enabled: false });
         disable2fa.value = false;
         disablePassword.value = '';
-        toast('Двухфакторная защита выключена');
+        toast(t('Двухфакторная защита выключена'));
     } catch (e) {
         toast(errorText(e), 'error');
     }
@@ -169,7 +169,7 @@ async function turnOff2fa() {
         <section class="card space-y-4" aria-labelledby="a11y">
             <h2 id="a11y" class="flex items-center gap-2 text-xl font-bold"><Icon name="eye" /> {{ $t('Удобство чтения') }}</h2>
             <fieldset>
-                <legend class="field-label">Мова / Язык</legend>
+                <legend class="field-label">{{ $t('Мова / Язык') }}</legend>
                 <div class="grid grid-cols-2 gap-2">
                     <button v-for="(label, code) in LOCALES" :key="code" class="btn"
                             :class="getLocale() === code ? 'bg-brand-700 text-white' : 'bg-white ring-2 ring-slate-300'"

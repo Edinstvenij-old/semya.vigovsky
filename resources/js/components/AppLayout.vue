@@ -23,7 +23,7 @@ const nav = computed(() => [
 const secondary = computed(() => [
     { to: '/notifications', label: t('Уведомления'), icon: 'bell', badge: store.counts.unread_notifications },
     { to: '/photos', label: t('Фотоальбом'), icon: 'image' },
-    { to: '/shopping', label: t('Список покупок'), icon: 'shopping-cart', badge: store.counts.shopping_open },
+    { to: '/shopping', label: t('Покупки'), icon: 'shopping-cart', badge: store.counts.shopping_open },
     { to: '/documents', label: t('Билеты и брони'), icon: 'lock' },
     { to: '/family', label: t('Семья'), icon: 'users' },
     { to: '/settings', label: t('Настройки'), icon: 'settings' },
@@ -76,7 +76,9 @@ function openUrgent() {
         </a>
 
         <!-- Desktop sidebar -->
-        <aside class="sticky top-0 hidden h-screen w-72 shrink-0 flex-col bg-brand-900 p-4 text-white md:flex">
+        <!-- Width in px, not rem: with large text the menu must not eat the content area on laptops. -->
+        <aside class="sticky top-0 hidden h-screen w-[clamp(230px,22vw,300px)] shrink-0 flex-col overflow-y-auto bg-brand-900 p-4 text-white md:flex"
+               :style="{ fontSize: 'min(1rem, 18px)' }">
             <RouterLink to="/" class="mb-6 flex items-center gap-3 px-2">
                 <img :src="'/crest.png'" alt="" class="h-14 w-auto shrink-0 drop-shadow">
                 <span>
@@ -89,7 +91,7 @@ function openUrgent() {
                     v-for="item in [...nav, ...secondary]"
                     :key="item.to"
                     :to="item.to"
-                    class="flex min-h-12 items-center gap-3 rounded-xl px-3 text-lg font-semibold text-red-100 hover:bg-white/10"
+                    class="flex min-h-12 items-center gap-3 rounded-xl px-3 text-[1.1em] font-semibold text-red-100 hover:bg-white/10"
                     :active-class="item.exact ? '' : '!bg-white !text-brand-900'"
                     :exact-active-class="'!bg-white !text-brand-900'"
                 >

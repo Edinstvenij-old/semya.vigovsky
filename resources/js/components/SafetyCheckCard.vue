@@ -51,7 +51,7 @@ async function ask() {
         check.value = (await api.post('/safety-checks', { note: askNote.value || null })).data.check;
         asking.value = false;
         askNote.value = '';
-        toast('Вопрос отправлен всей семье');
+        toast(t('Вопрос отправлен всей семье'));
     } catch (e) {
         toast(errorText(e), 'error');
     } finally {

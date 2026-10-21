@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { api, errorText } from '../api';
 import { setUser, store, toast } from '../store';
 import Icon from './Icon.vue';
+import { t } from '../i18n';
 
 const emit = defineEmits(['enabled']);
 const step = ref('password');
@@ -42,7 +43,7 @@ async function confirm() {
 
 function copyCodes() {
     navigator.clipboard?.writeText(codes.value.join('\n'));
-    toast('Коды скопированы');
+    toast(t('Коды скопированы'));
 }
 </script>
 

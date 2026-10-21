@@ -56,7 +56,7 @@ async function createInvite() {
 
 async function copyLink() {
     await navigator.clipboard?.writeText(newLink.value.url);
-    toast('Ссылка скопирована — отправьте её родственнику лично');
+    toast(t('Ссылка скопирована — отправьте её родственнику лично'));
 }
 
 async function share() {
@@ -106,7 +106,7 @@ async function createResetLink() {
 
 async function copyResetLink() {
     await navigator.clipboard?.writeText(resetLink.value.url);
-    toast('Ссылка скопирована');
+    toast(t('Ссылка скопирована'));
 }
 
 async function saveFamily() {
@@ -117,14 +117,14 @@ async function saveFamily() {
         alert_regions: family.value.alert_regions,
     });
     setUser({ ...store.user, family: { ...store.user.family, name: family.value.name } });
-    toast('Настройки семьи сохранены');
+    toast(t('Настройки семьи сохранены'));
 }
 
 async function runBackup() {
     backupBusy.value = true;
     try {
         backups.value = (await api.post('/family/backups')).data;
-        toast('Резервная копия создана');
+        toast(t('Резервная копия создана'));
     } catch (e) {
         toast(errorText(e), 'error');
     } finally {

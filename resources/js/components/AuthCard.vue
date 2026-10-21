@@ -13,7 +13,7 @@ defineProps({ title: String, subtitle: String });
                 <p v-if="subtitle" class="text-slate-600">{{ subtitle }}</p>
             </div>
             <slot />
-            <div class="mt-6 flex justify-center gap-2" role="group" aria-label="Мова / Язык">
+            <div class="mt-6 flex justify-center gap-2" role="group" :aria-label="$t('Мова / Язык')">
                 <button v-for="(label, code) in LOCALES" :key="code" type="button" class="btn-ghost min-h-11 text-sm"
                         :class="getLocale() === code ? 'underline' : ''" :aria-pressed="getLocale() === code" @click="setLocale(code)">{{ label }}</button>
             </div>

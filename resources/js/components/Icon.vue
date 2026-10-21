@@ -5,7 +5,7 @@ import {
     FileText, Folder, Home, House, KeyRound, Link, ListChecks, LogOut, MapPin, Menu, MessageCircle, MessageSquare,
     Paperclip, Pencil, Pin, Plane, PlaneLanding, PlaneTakeoff, Plug, Plus, RefreshCw, Search, Send, Settings,
     Shield, ShieldCheck, ShoppingCart, Siren, Trash2, TrainFront, UserPlus, Users, Wrench, X, Zap, Filter, Droplets,
-    Camera, Lock, Image,
+    Camera, Lock, Image, Kanban, LayoutList,
 } from 'lucide-vue-next';
 import { computed } from 'vue';
 
@@ -21,7 +21,7 @@ const icons = {
     'refresh-cw': RefreshCw, search: Search, send: Send, settings: Settings, shield: Shield, 'shield-check': ShieldCheck,
     'shopping-cart': ShoppingCart, siren: Siren, trash: Trash2, 'train-front': TrainFront, 'user-plus': UserPlus,
     users: Users, wrench: Wrench, x: X, zap: Zap, filter: Filter, droplets: Droplets, camera: Camera, lock: Lock,
-    image: Image,
+    image: Image, kanban: Kanban, 'layout-list': LayoutList,
 };
 
 const props = defineProps({ name: { type: String, required: true }, size: { type: [Number, String], default: '1.25em' } });

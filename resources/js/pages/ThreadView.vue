@@ -98,7 +98,7 @@ async function send() {
         }
         const { data } = await api.post(`/threads/${route.params.id}/messages`, payload);
         if (data.queued) {
-            toast('Нет связи — сообщение отправится, когда появится интернет');
+            toast(t('Нет связи — сообщение отправится, когда появится интернет'));
         } else {
             messages.value.push(data);
         }

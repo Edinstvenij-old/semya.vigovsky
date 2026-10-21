@@ -25,6 +25,24 @@ const newCategory = ref('');
 const dragged = ref(null);
 const loading = ref(true);
 
+// Laptops and desktops: a list reads better than three narrow columns, especially with large text.
+// The choice is remembered on this device; phones always get the one-column board with tabs.
+function savedView() {
+    try {
+        return localStorage.getItem('fh-tasks-view');
+    } catch {
+        return null;
+    }
+}
+const view = ref(savedView() || (window.innerWidth >= 1600 ? 'board' : 'list'));
+watch(view, (v) => {
+    try {
+        localStorage.setItem('fh-tasks-view', v);
+    } catch {
+        /* storage unavailable */
+    }
+});
+
 const statuses = Object.keys(STATUS_LABELS);
 const columnColors = { todo: 'bg-slate-200', in_progress: 'bg-amber-100', done: 'bg-emerald-100' };
 
@@ -59,7 +77,7 @@ async function move(task, status) {
     const order = columns.value[status].map((t) => t.id);
     try {
         await api.post(`/tasks/${task.id}/move`, { status, order });
-        if (status === 'done') toast('Готово! Задача выполнена');
+        if (status === 'done') toast(t('Готово! Задача выполнена'));
     } catch (e) {
         task.status = previous;
         toast(errorText(e), 'error');
@@ -91,7 +109,7 @@ async function removeCategory(c) {
 
 function onSaved(task) {
     creating.value = false;
-    toast('Задача создана');
+    toast(t('Задача создана'));
     router.push(`/tasks/${task.id}`);
 }
 </script>
@@ -120,6 +138,12 @@ function onSaved(task) {
         </div>
 
         <div class="flex flex-wrap gap-3">
+            <div class="hidden rounded-xl bg-slate-200 p-1 md:flex" role="group" :aria-label="$t('Вид задач')">
+                <button class="flex min-h-10 items-center gap-2 rounded-lg px-3 font-semibold" :class="view === 'list' ? 'bg-white shadow' : 'text-slate-700'"
+                        :aria-pressed="view === 'list'" @click="view = 'list'"><Icon name="layout-list" /> {{ $t('Список') }}</button>
+                <button class="flex min-h-10 items-center gap-2 rounded-lg px-3 font-semibold" :class="view === 'board' ? 'bg-white shadow' : 'text-slate-700'"
+                        :aria-pressed="view === 'board'" @click="view = 'board'"><Icon name="kanban" /> {{ $t('Доска') }}</button>
+            </div>
             <label class="relative min-w-0 flex-1">
                 <span class="sr-only">{{ $t('Поиск') }}</span>
                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"><Icon name="search" /></span>
@@ -139,7 +163,47 @@ function onSaved(task) {
             </button>
         </div>
 
-        <div class="grid gap-4 md:grid-cols-3">
+        <!-- List view (laptops and desktops): one wide row per task, grouped by status -->
+        <div v-if="view === 'list'" class="hidden space-y-4 md:block">
+            <section v-for="s in statuses" :key="s" class="card overflow-hidden p-0" :aria-label="STATUS_LABELS[s]"
+                     @dragover.prevent @drop="onDrop(s)">
+                <h2 class="flex items-center justify-between px-4 py-2 text-lg font-bold" :class="columnColors[s]">
+                    {{ STATUS_LABELS[s] }} <span class="chip bg-white">{{ columns[s].length }}</span>
+                </h2>
+                <ul class="divide-y divide-slate-200">
+                    <li v-for="t in columns[s]" :key="t.id"
+                        class="flex cursor-pointer items-center gap-4 px-4 py-3 hover:bg-slate-50"
+                        :draggable="store.user.can_write" @dragstart="dragged = t" @click="router.push(`/tasks/${t.id}`)">
+                        <div class="min-w-0 flex-1">
+                        <h3 class="text-lg font-bold" :class="t.status === 'done' ? 'text-slate-500 line-through' : ''">{{ t.title }}</h3>
+                        <div class="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-700">
+                            <span v-if="t.priority === 'high'" class="chip bg-red-100 text-red-800">{{ $t('Срочно') }}</span>
+                            <span v-if="t.category" class="chip text-white" :style="{ background: t.category.color }">{{ t.category.name }}</span>
+                            <span v-if="t.checklist_count" class="chip bg-slate-100"><Icon name="list-checks" /> {{ t.checklist_done_count }}/{{ t.checklist_count }}</span>
+                            <span v-if="t.attachments_count" class="chip bg-slate-100"><Icon name="camera" /> {{ t.attachments_count }}</span>
+                            <span v-if="t.due_date" class="chip" :class="daysUntil(t.due_date) < 0 && t.status !== 'done' ? 'bg-red-100 text-red-800' : 'bg-slate-100'">
+                                <Icon name="clock" /> {{ date(t.due_date) }}
+                            </span>
+                        </div>
+                        </div>
+                        <!-- Right side: stacked on smaller laptops so the title keeps its width, in a row on wide screens. -->
+                        <div class="flex shrink-0 flex-col items-end gap-2 xl:flex-row xl:items-center xl:gap-4">
+                            <span v-if="t.assignee" class="flex items-center gap-2 text-sm text-slate-700 xl:w-44">
+                                <Avatar :user="t.assignee" size="sm" /> <span class="hidden truncate xl:inline">{{ t.assignee.name }}</span>
+                            </span>
+                            <select v-if="store.user.can_write" class="field w-auto min-h-11 py-1" :value="t.status" :aria-label="$t('Статус')"
+                                    @click.stop @change="move(t, $event.target.value)">
+                                <option v-for="o in statuses" :key="o" :value="o">{{ STATUS_LABELS[o] }}</option>
+                            </select>
+                        </div>
+                    </li>
+                </ul>
+                <p v-if="!loading && !columns[s].length" class="px-4 py-3 text-slate-600">{{ $t('Пусто') }}</p>
+            </section>
+        </div>
+
+        <!-- Board: always on phones (one column with tabs), on bigger screens when chosen -->
+        <div class="grid gap-4 md:grid-cols-3" :class="view === 'list' ? 'md:hidden' : ''">
             <section v-for="s in statuses" :key="s"
                      class="rounded-2xl p-3" :class="[columnColors[s], mobileStatus === s ? '' : 'hidden md:block']"
                      :aria-label="STATUS_LABELS[s]"
@@ -153,11 +217,10 @@ function onSaved(task) {
                              :draggable="store.user.can_write"
                              @dragstart="dragged = t"
                              @click="router.push(`/tasks/${t.id}`)">
-                        <div class="flex items-start gap-2">
-                            <h3 class="flex-1 font-bold" :class="t.status === 'done' ? 'text-slate-500 line-through' : ''">{{ t.title }}</h3>
-                            <Avatar v-if="t.assignee" :user="t.assignee" size="sm" />
-                        </div>
+                        <!-- Title gets the whole card width; the assignee sits with the badges. -->
+                        <h3 class="font-bold" :class="t.status === 'done' ? 'text-slate-500 line-through' : ''">{{ t.title }}</h3>
                         <div class="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-700">
+                            <Avatar v-if="t.assignee" :user="t.assignee" size="sm" />
                             <span v-if="t.priority === 'high'" class="chip bg-red-100 text-red-800">{{ $t('Срочно') }}</span>
                             <span v-if="t.category" class="chip text-white" :style="{ background: t.category.color }">{{ t.category.name }}</span>
                             <span v-if="t.checklist_count" class="chip bg-slate-100"><Icon name="list-checks" /> {{ t.checklist_done_count }}/{{ t.checklist_count }}</span>
