@@ -25,6 +25,7 @@ class AuthController extends Controller
             'app_name' => config('app.name'),
             'registration_open' => $this->registrationOpen(),
             'vapid_public_key' => config('familyhub.vapid.public_key'),
+            'telegram_enabled' => (bool) (config('familyhub.telegram.token') && config('familyhub.telegram.username')),
         ]);
     }
 

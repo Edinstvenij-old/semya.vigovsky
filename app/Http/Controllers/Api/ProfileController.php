@@ -35,6 +35,7 @@ class ProfileController extends Controller
         foreach (['logistics', 'projects', 'maintenance', 'chat'] as $channel) {
             $rules["push_{$channel}"] = ['sometimes', 'boolean'];
         }
+        $rules['telegram_all'] = ['sometimes', 'boolean'];
 
         $user = $request->user();
         $user->update(['preferences' => array_merge($user->preferences ?? [], $request->validate($rules))]);

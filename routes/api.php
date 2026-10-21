@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\SafetyController;
 use App\Http\Controllers\Api\ShoppingController;
 use App\Http\Controllers\Api\TaskController;
+use App\Http\Controllers\Api\TelegramController;
 use App\Http\Controllers\Api\ThreadController;
 use App\Http\Controllers\Api\TravelController;
 use App\Http\Controllers\Api\TravelDocumentController;
@@ -36,6 +37,9 @@ Route::middleware('throttle:auth')->group(function () {
     Route::post('reset-password', [PasswordResetController::class, 'reset']);
 });
 
+// Telegram calls this; it is authenticated by the webhook secret header, not a session.
+Route::post('telegram/webhook', [TelegramController::class, 'webhook'])->middleware('throttle:120,1');
+
 // --- Signed in ------------------------------------------------------------------
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
@@ -44,6 +48,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('profile/preferences', [ProfileController::class, 'preferences']);
     Route::put('profile/password', [ProfileController::class, 'password']);
     Route::post('profile/family', [ProfileController::class, 'switchFamily']);
+    Route::post('telegram/link', [TelegramController::class, 'link']);
+    Route::delete('telegram/link', [TelegramController::class, 'unlink']);
 
     Route::prefix('two-factor')->middleware('throttle:two-factor')->group(function () {
         Route::get('/', [TwoFactorController::class, 'status']);

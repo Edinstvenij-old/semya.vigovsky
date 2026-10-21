@@ -32,6 +32,17 @@ return [
         'password' => env('FAMILYHUB_BASIC_AUTH_PASSWORD'),
     ],
 
+    /*
+    | Telegram bot for urgent notifications (fallback for phones where browser push
+    | is unreliable). Create a bot with @BotFather, put token and username here,
+    | then run `php artisan telegram:webhook`.
+    */
+    'telegram' => [
+        'token' => env('TELEGRAM_BOT_TOKEN'),
+        'username' => env('TELEGRAM_BOT_USERNAME'),
+        'webhook_secret' => env('TELEGRAM_WEBHOOK_SECRET'),
+    ],
+
     // Web Push (VAPID). Generate with `php artisan push:vapid`.
     'vapid' => [
         'subject' => env('VAPID_SUBJECT', 'mailto:admin@example.com'),

@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, reactive, ref } from 'vue';
+import { onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 import { api, errorText, fieldErrors } from '../api';
 import Icon from '../components/Icon.vue';
 import Modal from '../components/Modal.vue';
@@ -14,6 +14,40 @@ const pushState = ref('unknown'); // unsupported | denied | off | on
 const settingUp2fa = ref(false);
 const disable2fa = ref(false);
 const disablePassword = ref('');
+const telegramWaiting = ref(false);
+let telegramTimer;
+
+async function linkTelegram() {
+    try {
+        const { data } = await api.post('/telegram/link');
+        window.open(data.url, '_blank', 'noopener');
+        // Wait until the user taps "Start" in Telegram.
+        telegramWaiting.value = true;
+        clearInterval(telegramTimer);
+        let tries = 0;
+        telegramTimer = setInterval(async () => {
+            const me = (await api.get('/me')).data.user;
+            if (me?.telegram_linked || ++tries > 60) {
+                clearInterval(telegramTimer);
+                telegramWaiting.value = false;
+                if (me?.telegram_linked) {
+                    setUser(me);
+                    toast('Telegram подключён');
+                }
+            }
+        }, 3000);
+    } catch (e) {
+        toast(errorText(e), 'error');
+    }
+}
+
+async function unlinkTelegram() {
+    await api.delete('/telegram/link');
+    setUser({ ...store.user, telegram_linked: false });
+    toast('Telegram отключён');
+}
+
+onBeforeUnmount(() => clearInterval(telegramTimer));
 
 const COLORS = ['#1d4ed8', '#15803d', '#b91c1c', '#7e22ce', '#c2410c', '#0f766e', '#be185d', '#334155'];
 const SCALES = [
@@ -173,6 +207,26 @@ async function turnOff2fa() {
                     <span class="flex-1"><b class="block">{{ c.label }}</b><span class="text-slate-600">{{ c.hint }}</span></span>
                     <input type="checkbox" class="h-7 w-7" :checked="prefs[c.key]" @change="savePrefs({ [c.key]: $event.target.checked })">
                 </label>
+            </div>
+
+            <div class="space-y-3 rounded-xl bg-sky-50 p-3">
+                <h3 class="flex items-center gap-2 text-lg font-bold"><Icon name="send" /> Telegram</h3>
+                <template v-if="!store.config.telegram_enabled">
+                    <p class="text-slate-700">Бот ещё не настроен на сервере. Попросите администратора добавить его (инструкция в docs/DEPLOY.md).</p>
+                </template>
+                <template v-else-if="store.user.telegram_linked">
+                    <p class="font-semibold text-emerald-800">Подключено. Срочные статусы приходят в Telegram со звуком.</p>
+                    <label class="flex min-h-12 cursor-pointer items-center gap-3">
+                        <span class="flex-1"><b class="block">Присылать и обычные уведомления</b><span class="text-slate-600">Задачи, чаты, дом — без звука</span></span>
+                        <input type="checkbox" class="h-7 w-7" :checked="prefs.telegram_all" @change="savePrefs({ telegram_all: $event.target.checked })">
+                    </label>
+                    <button class="btn-secondary" @click="unlinkTelegram">Отключить Telegram</button>
+                </template>
+                <template v-else>
+                    <p>Надёжный способ получать срочное: «Граница пройдена», «В укрытии», «Все ли в порядке?» — даже если пуши в браузере не работают.</p>
+                    <button class="btn-primary" @click="linkTelegram"><Icon name="send" /> Подключить Telegram</button>
+                    <p v-if="telegramWaiting" class="text-slate-700" role="status">Откройте бота в Telegram и нажмите «Запустить» / «Start». Ждём подтверждения…</p>
+                </template>
             </div>
         </section>
 

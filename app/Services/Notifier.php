@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Jobs\SendTelegram;
 use App\Jobs\SendWebPush;
 use App\Models\FamilyNotification;
 use App\Models\User;
@@ -59,6 +60,10 @@ class Notifier
                     'urgent' => $urgent,
                     'channel' => $channel,
                 ]);
+            }
+
+            if ($user->telegram_chat_id && config('familyhub.telegram.token') && ($urgent || $user->pref('telegram_all'))) {
+                SendTelegram::dispatch($user->telegram_chat_id, $notification->title, $notification->body, $url, $urgent);
             }
         }
     }

@@ -15,7 +15,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 #[Fillable(['name', 'email', 'password', 'current_family_id', 'avatar_color', 'preferences'])]
-#[Hidden(['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes'])]
+#[Hidden(['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes', 'telegram_chat_id'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -29,6 +29,7 @@ class User extends Authenticatable
         'push_projects' => true,    // silent
         'push_maintenance' => true, // silent
         'push_chat' => true,        // silent
+        'telegram_all' => false,    // Telegram: urgent only unless switched on
     ];
 
     protected function casts(): array
@@ -96,6 +97,7 @@ class User extends Authenticatable
             'avatar_color' => $this->avatar_color,
             'preferences' => $this->allPreferences(),
             'two_factor_enabled' => $this->hasTwoFactor(),
+            'telegram_linked' => $this->telegram_chat_id !== null,
             'role' => $membership?->role?->value,
             'role_label' => $membership?->role?->label(),
             'can_write' => $membership?->role?->canWrite() ?? false,

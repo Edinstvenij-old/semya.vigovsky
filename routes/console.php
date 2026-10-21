@@ -8,6 +8,7 @@ use App\Models\MaintenanceItem;
 use App\Models\User;
 use App\Services\FamilyBackup;
 use App\Services\Notifier;
+use App\Services\Telegram;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schedule;
@@ -91,6 +92,19 @@ Artisan::command('push:vapid', function () {
     $this->line('VAPID_PRIVATE_KEY='.$keys['privateKey']);
     $this->comment('Add these lines to .env');
 })->purpose('Generate VAPID keys for Web Push');
+
+Artisan::command('telegram:webhook', function (Telegram $telegram) {
+    $secret = config('familyhub.telegram.webhook_secret');
+    if (! $telegram->configured() || ! $secret) {
+        $this->error('Set TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_USERNAME and TELEGRAM_WEBHOOK_SECRET in .env first.');
+
+        return 1;
+    }
+
+    $url = rtrim(config('app.url'), '/').'/api/telegram/webhook';
+    $result = $telegram->setWebhook($url, $secret);
+    $this->line(($result['ok'] ?? false) ? "Webhook set: {$url}" : 'Telegram error: '.($result['description'] ?? 'unknown'));
+})->purpose('Register the Telegram webhook (needs a public https APP_URL)');
 
 Schedule::command('maintenance:remind')->dailyAt('09:00');
 Schedule::command('family:backup')->dailyAt('03:30');
