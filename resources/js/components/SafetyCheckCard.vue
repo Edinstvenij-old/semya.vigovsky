@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { api, errorText } from '../api';
 import { ago } from '../format';
+import { onLive } from '../live';
 import { refreshCounts, store, toast } from '../store';
 import Avatar from './Avatar.vue';
 import Icon from './Icon.vue';
@@ -32,11 +33,16 @@ async function load() {
     }
 }
 
+let off;
 onMounted(() => {
     load();
     timer = setInterval(() => load().catch(() => {}), 15000);
+    off = onLive('safety', () => load().catch(() => {}));
 });
-onBeforeUnmount(() => clearInterval(timer));
+onBeforeUnmount(() => {
+    clearInterval(timer);
+    off?.();
+});
 
 async function ask() {
     busy.value = true;

@@ -6,6 +6,7 @@ use App\Jobs\SendTelegram;
 use App\Jobs\SendWebPush;
 use App\Models\FamilyNotification;
 use App\Models\User;
+use App\Support\Live;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -66,5 +67,8 @@ class Notifier
                 SendTelegram::dispatch($user->telegram_chat_id, $notification->title, $notification->body, $url, $urgent);
             }
         }
+
+        // Open apps refresh their badges (and show the urgent banner) right away.
+        Live::emit($familyId, 'notification', ['urgent' => $urgent]);
     }
 }

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { api } from '../api';
 import CheckinButtons from '../components/CheckinButtons.vue';
 import AirAlertCard from '../components/AirAlertCard.vue';
@@ -8,6 +8,7 @@ import SafetyCheckCard from '../components/SafetyCheckCard.vue';
 import Icon from '../components/Icon.vue';
 import StatusCard from '../components/StatusCard.vue';
 import { date, dueText, daysUntil } from '../format';
+import { onLive } from '../live';
 import { simpleMode, store } from '../store';
 
 const data = ref(null);
@@ -24,7 +25,12 @@ async function load() {
     data.value = (await api.get('/dashboard')).data;
 }
 
-onMounted(load);
+const offs = [];
+onMounted(() => {
+    load();
+    offs.push(onLive('checkin', load), onLive('task', load));
+});
+onBeforeUnmount(() => offs.forEach((off) => off()));
 
 const tiles = computed(() => [
     { to: '/travel', icon: 'plane', label: 'Кто где', color: 'bg-brand-700' },

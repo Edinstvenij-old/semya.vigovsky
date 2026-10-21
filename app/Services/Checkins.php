@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\CheckinType;
 use App\Models\Checkin;
 use App\Models\User;
+use App\Support\Live;
 
 /** Records a status ("check-in") and tells the rest of the family with an urgent notification. */
 class Checkins
@@ -29,6 +30,8 @@ class Checkins
             in_array($type, [CheckinType::Safe, CheckinType::Shelter, CheckinType::NeedHelp], true) ? '/' : '/travel',
             $user,
         );
+
+        Live::emit($checkin->family_id, 'checkin');
 
         return $checkin;
     }

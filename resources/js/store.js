@@ -1,5 +1,6 @@
 import { reactive } from 'vue';
 import { api, flushOutbox, setOutboxUser } from './api';
+import { connectRealtime, disconnectRealtime } from './realtime';
 
 /** Tiny global store: session user, app config, badge counters, toasts. */
 export const store = reactive({
@@ -83,11 +84,13 @@ export async function refreshCounts() {
 
 export function startPolling() {
     stopPolling();
+    connectRealtime(store.config.realtime, store.user?.family?.id, refreshCounts);
     refreshCounts();
     timer = setInterval(refreshCounts, 20000);
 }
 
 export function stopPolling() {
+    disconnectRealtime();
     clearInterval(timer);
     lastUrgentId = null;
 }

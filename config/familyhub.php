@@ -53,6 +53,16 @@ return [
         'token' => env('ALERTS_IN_UA_TOKEN'),
     ],
 
+    /*
+    | Realtime (Laravel Reverb). Where BROWSERS connect; the server itself talks to
+    | Reverb via REVERB_HOST/REVERB_PORT (in Docker: the internal "reverb" service).
+    */
+    'realtime' => [
+        'host' => env('REVERB_PUBLIC_HOST', env('REVERB_HOST', 'localhost')),
+        'port' => (int) env('REVERB_PUBLIC_PORT', env('REVERB_PORT', 8080)),
+        'scheme' => env('REVERB_PUBLIC_SCHEME', env('REVERB_SCHEME', 'http')),
+    ],
+
     // Web Push (VAPID). Generate with `php artisan push:vapid`.
     'vapid' => [
         'subject' => env('VAPID_SUBJECT', 'mailto:admin@example.com'),

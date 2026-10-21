@@ -6,6 +6,7 @@ import EmptyState from '../components/EmptyState.vue';
 import Icon from '../components/Icon.vue';
 import { ago } from '../format';
 import { onLive } from '../live';
+import { realtime } from '../realtime';
 import { store, toast } from '../store';
 
 const open = ref([]);
@@ -25,7 +26,7 @@ async function load() {
 onMounted(() => {
     load();
     // Someone else may be in the shop right now: keep the list fresh.
-    timer = setInterval(() => load().catch(() => {}), 8000);
+    timer = setInterval(() => !realtime.connected && load().catch(() => {}), 8000);
     offLive = onLive('shopping', load);
 });
 onBeforeUnmount(() => {

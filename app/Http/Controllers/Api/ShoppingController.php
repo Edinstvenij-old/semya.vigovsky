@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\ShoppingItem;
+use App\Support\FamilyContext;
+use App\Support\Live;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -11,6 +13,13 @@ use Illuminate\Http\Request;
 class ShoppingController extends Controller
 {
     private const WITH = ['adder:id,name,avatar_color', 'doer:id,name'];
+
+    public function __construct(private FamilyContext $context) {}
+
+    private function changed(): void
+    {
+        Live::emit($this->context->id(), 'shopping');
+    }
 
     public function index(): JsonResponse
     {
@@ -29,7 +38,10 @@ class ShoppingController extends Controller
             'quantity' => ['nullable', 'string', 'max:40'],
         ]);
 
-        return response()->json(ShoppingItem::create($data + ['added_by' => $request->user()->id])->load(self::WITH), 201);
+        $item = ShoppingItem::create($data + ['added_by' => $request->user()->id]);
+        $this->changed();
+
+        return response()->json($item->load(self::WITH), 201);
     }
 
     public function update(Request $request, ShoppingItem $item): JsonResponse
@@ -47,6 +59,7 @@ class ShoppingController extends Controller
         }
 
         $item->update($data);
+        $this->changed();
 
         return response()->json($item->load(self::WITH));
     }
@@ -54,6 +67,7 @@ class ShoppingController extends Controller
     public function destroy(ShoppingItem $item): JsonResponse
     {
         $item->delete();
+        $this->changed();
 
         return response()->json(['ok' => true]);
     }
@@ -61,6 +75,7 @@ class ShoppingController extends Controller
     public function clearDone(): JsonResponse
     {
         ShoppingItem::where('is_done', true)->delete();
+        $this->changed();
 
         return response()->json(['ok' => true]);
     }

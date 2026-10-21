@@ -25,6 +25,9 @@ class AuthController extends Controller
             'app_name' => config('app.name'),
             'registration_open' => $this->registrationOpen(),
             'vapid_public_key' => config('familyhub.vapid.public_key'),
+            'realtime' => config('broadcasting.default') === 'reverb' && config('broadcasting.connections.reverb.key') ? [
+                'key' => config('broadcasting.connections.reverb.key'),
+            ] + config('familyhub.realtime') : null,
             'flight_status_enabled' => (bool) config('familyhub.flights.api_key'),
             'telegram_enabled' => (bool) (config('familyhub.telegram.token') && config('familyhub.telegram.username')),
         ]);

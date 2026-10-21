@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { api, errorText } from '../api';
 import Avatar from '../components/Avatar.vue';
@@ -8,6 +8,7 @@ import Modal from '../components/Modal.vue';
 import TaskForm from '../components/TaskForm.vue';
 import { date, money, PRIORITY_LABELS, STATUS_LABELS } from '../format';
 import { appendImages } from '../images';
+import { onLive } from '../live';
 import { store, toast } from '../store';
 
 const route = useRoute();
@@ -33,7 +34,12 @@ async function load() {
     categories.value = c.data;
 }
 
-onMounted(() => load().catch(() => router.replace('/tasks')));
+let off;
+onMounted(() => {
+    load().catch(() => router.replace('/tasks'));
+    off = onLive('task', (e) => Number(e?.task_id) === Number(route.params.id) && load().catch(() => {}));
+});
+onBeforeUnmount(() => off?.());
 
 const progress = computed(() => {
     const list = task.value?.checklist || [];

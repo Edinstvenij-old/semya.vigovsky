@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, reactive, ref } from 'vue';
+import { onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { api, fieldErrors } from '../api';
 import Avatar from '../components/Avatar.vue';
@@ -9,6 +9,7 @@ import Icon from '../components/Icon.vue';
 import Modal from '../components/Modal.vue';
 import StatusCard from '../components/StatusCard.vue';
 import { date, toLocalInput } from '../format';
+import { onLive } from '../live';
 import { loadMembers, store, toast } from '../store';
 
 const router = useRouter();
@@ -26,10 +27,13 @@ async function load() {
     trips.value = t.data;
 }
 
+let off;
 onMounted(() => {
     load();
     loadMembers();
+    off = onLive('checkin', load);
 });
+onBeforeUnmount(() => off?.());
 
 function openTrip(trip = null) {
     errors.value = {};

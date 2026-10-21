@@ -10,6 +10,7 @@ use App\Models\Thread;
 use App\Models\User;
 use App\Services\Notifier;
 use App\Support\FamilyContext;
+use App\Support\Live;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -124,6 +125,7 @@ class ThreadController extends Controller
         abort_unless($message->thread_id === $thread->id, 404);
         abort_unless($message->user_id === $request->user()->id || $this->context->isAdmin(), 403);
         $message->delete();
+        Live::emit($thread->family_id, 'message', ['thread_id' => $thread->id]);
 
         return response()->json(['ok' => true]);
     }
@@ -176,6 +178,8 @@ class ThreadController extends Controller
             $thread->family_id, 'chat', "{$author->name} в «{$thread->title}»",
             $body !== '' ? Str::limit($body, 140) : '📷 Фото', "/threads/{$thread->id}", $author, $recipients,
         );
+
+        Live::emit($thread->family_id, 'message', ['thread_id' => $thread->id]);
 
         return $message;
     }

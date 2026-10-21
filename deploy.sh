@@ -41,6 +41,13 @@ init)
     set_env AWS_SECRET_ACCESS_KEY "$(rand)"
     set_env AWS_BUCKET familyhub
     set_env VAPID_SUBJECT "mailto:$email"
+    set_env BROADCAST_CONNECTION reverb
+    set_env REVERB_APP_ID "$(od -An -N4 -tu4 /dev/urandom | tr -d ' ')"
+    set_env REVERB_APP_KEY "$(rand 16)"
+    set_env REVERB_APP_SECRET "$(rand 32)"
+    set_env REVERB_PUBLIC_HOST "$domain"
+    set_env REVERB_PUBLIC_PORT 443
+    set_env REVERB_PUBLIC_SCHEME https
     chmod 600 .env
 
     dc build
@@ -70,7 +77,7 @@ backup)
     dc exec -T app php artisan family:backup --all
     ;;
 logs)
-    dc logs -f --tail=100 app queue scheduler caddy
+    dc logs -f --tail=100 app queue scheduler reverb caddy
     ;;
 *)
     echo "usage: ./deploy.sh [init <domain> <email> | update | backup | logs]"

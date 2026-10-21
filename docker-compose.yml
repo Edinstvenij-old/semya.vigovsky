@@ -1,5 +1,6 @@
 # Production stack: Caddy (automatic HTTPS) → nginx → php-fpm, plus queue worker,
-# scheduler, PostgreSQL and MinIO (private S3 for photos, tickets and backups).
+# scheduler, Reverb (realtime websockets), PostgreSQL and MinIO (private S3 for
+# photos, tickets and backups).
 #
 # First deploy on a fresh server:   ./deploy.sh init <domain> <your-email>
 # Every later update:               ./deploy.sh            (git pull + rebuild + migrate)
@@ -19,6 +20,12 @@ x-app: &app
     AWS_ENDPOINT: http://minio:9000
     AWS_USE_PATH_STYLE_ENDPOINT: "true"
     AWS_BUCKET: ${AWS_BUCKET:-familyhub}
+    # The app publishes realtime signals to the internal Reverb service;
+    # browsers connect through Caddy (REVERB_PUBLIC_* in .env).
+    BROADCAST_CONNECTION: reverb
+    REVERB_HOST: reverb
+    REVERB_PORT: 8080
+    REVERB_SCHEME: http
   volumes:
     - storage:/var/www/html/storage/app
   depends_on:
@@ -37,6 +44,10 @@ services:
     <<: *app
     command: php artisan schedule:work
 
+  reverb:
+    <<: *app
+    command: php artisan reverb:start --host=0.0.0.0 --port=8080
+
   web:
     build: { context: ., target: web }
     depends_on: [app]
@@ -52,7 +63,7 @@ services:
       - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
-    depends_on: [web]
+    depends_on: [web, reverb]
     restart: unless-stopped
 
   db:

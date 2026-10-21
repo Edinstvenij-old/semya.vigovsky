@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { api, errorText } from '../api';
 import Avatar from '../components/Avatar.vue';
@@ -8,6 +8,7 @@ import Icon from '../components/Icon.vue';
 import Modal from '../components/Modal.vue';
 import TaskForm from '../components/TaskForm.vue';
 import { date, daysUntil, STATUS_LABELS } from '../format';
+import { onLive } from '../live';
 import { store, toast } from '../store';
 
 const router = useRouter();
@@ -34,7 +35,12 @@ async function load() {
     loading.value = false;
 }
 
-onMounted(load);
+let off;
+onMounted(() => {
+    load();
+    off = onLive('task', load);
+});
+onBeforeUnmount(() => off?.());
 watch([category, onlyMine], load);
 let searchTimer;
 watch(search, () => {

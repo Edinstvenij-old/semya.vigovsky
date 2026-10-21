@@ -16,5 +16,15 @@
 		max_size 110MB
 	}
 
-	reverse_proxy web:80
+	# Realtime websockets (Laravel Reverb)
+	handle /app/* {
+		reverse_proxy reverb:8080
+	}
+	handle /apps/* {
+		reverse_proxy reverb:8080
+	}
+
+	handle {
+		reverse_proxy web:80
+	}
 }

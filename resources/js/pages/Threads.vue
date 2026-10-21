@@ -1,11 +1,12 @@
 <script setup>
-import { onMounted, reactive, ref } from 'vue';
+import { onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { api, errorText } from '../api';
 import EmptyState from '../components/EmptyState.vue';
 import Icon from '../components/Icon.vue';
 import Modal from '../components/Modal.vue';
 import { ago } from '../format';
+import { onLive } from '../live';
 import { store, toast } from '../store';
 
 const router = useRouter();
@@ -22,7 +23,12 @@ async function load() {
     threads.value = (await api.get('/threads')).data;
 }
 
-onMounted(load);
+let off;
+onMounted(() => {
+    load();
+    off = onLive('message', load);
+});
+onBeforeUnmount(() => off?.());
 
 async function create() {
     try {

@@ -10,6 +10,7 @@ use App\Models\SafetyResponse;
 use App\Services\Checkins;
 use App\Services\Notifier;
 use App\Support\FamilyContext;
+use App\Support\Live;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -55,6 +56,8 @@ class SafetyController extends Controller
             $note ?: 'Ответьте одной кнопкой на главной странице.', '/', $user,
         );
 
+        Live::emit($check->family_id, 'safety');
+
         return response()->json(['check' => $this->present($check)], 201);
     }
 
@@ -70,6 +73,7 @@ class SafetyController extends Controller
 
         $check->responses()->updateOrCreate(['user_id' => $request->user()->id], $data);
         $this->checkins->record($request->user(), self::CHECKIN_FOR[$data['status']], ['note' => $data['note'] ?? null]);
+        Live::emit($check->family_id, 'safety');
 
         return response()->json(['check' => $this->present($check->fresh())]);
     }
@@ -78,6 +82,7 @@ class SafetyController extends Controller
     {
         abort_unless($check->created_by === $request->user()->id || $this->context->isAdmin(), 403);
         $check->update(['closed_at' => now()]);
+        Live::emit($check->family_id, 'safety');
 
         return response()->json(['ok' => true]);
     }

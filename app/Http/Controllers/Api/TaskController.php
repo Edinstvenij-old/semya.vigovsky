@@ -11,6 +11,7 @@ use App\Models\TaskLink;
 use App\Models\Thread;
 use App\Services\Notifier;
 use App\Support\FamilyContext;
+use App\Support\Live;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -135,6 +136,7 @@ class TaskController extends Controller
         foreach ($data['order'] ?? [] as $position => $id) {
             Task::whereKey($id)->update(['position' => $position]);
         }
+        Live::emit($task->family_id, 'task', ['task_id' => $task->id]);
 
         return response()->json(['ok' => true]);
     }
@@ -245,6 +247,11 @@ class TaskController extends Controller
 
     private function load(Task $task): Task
     {
+        // Signal only real changes: a GET must not emit, or open pages would reload each other in a loop.
+        if (! request()->isMethodSafe()) {
+            Live::emit($task->family_id, 'task', ['task_id' => $task->id]);
+        }
+
         return $task->load([
             'assignee:id,name,avatar_color', 'creator:id,name', 'category',
             'checklist', 'links', 'attachments.uploader:id,name', 'thread:id,task_id',

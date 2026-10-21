@@ -8,6 +8,7 @@ import PhotoViewer from '../components/PhotoViewer.vue';
 import { ago, time } from '../format';
 import { appendImages } from '../images';
 import { onLive } from '../live';
+import { realtime } from '../realtime';
 import { refreshCounts, store, toast } from '../store';
 
 const route = useRoute();
@@ -48,7 +49,9 @@ async function load() {
     markRead();
 }
 
+let lastPoll = 0;
 async function poll() {
+    lastPoll = Date.now();
     const { data } = await api.get(`/threads/${route.params.id}/messages`, { params: { after: lastId.value } });
     if (data.messages.length) {
         messages.value.push(...data.messages.filter((m) => !messages.value.some((x) => x.id === m.id)));
@@ -59,7 +62,8 @@ async function poll() {
 
 onMounted(() => {
     load().catch(() => router.replace('/threads'));
-    timer = setInterval(() => poll().catch(() => {}), 5000);
+    // With a live connection new messages arrive by signal; polling is only a slow safety net.
+    timer = setInterval(() => (!realtime.connected || Date.now() - lastPoll > 30000) && poll().catch(() => {}), 5000);
     offLive = onLive('message', (e) => Number(e?.thread_id) === Number(route.params.id) && poll().catch(() => {}));
 });
 onBeforeUnmount(() => {
