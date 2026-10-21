@@ -20,7 +20,7 @@ class FamilyBackup
         'families' => 'id', 'family_members' => 'family_id', 'task_categories' => 'family_id',
         'tasks' => 'family_id', 'attachments' => 'family_id', 'maintenance_items' => 'family_id',
         'trips' => 'family_id', 'checkins' => 'family_id', 'travel_documents' => 'family_id',
-        'threads' => 'family_id',
+        'threads' => 'family_id', 'shopping_items' => 'family_id',
     ];
 
     public function directory(Family $family): string

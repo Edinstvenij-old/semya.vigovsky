@@ -7,11 +7,13 @@ use App\Models\Invitation;
 use App\Models\MaintenanceItem;
 use App\Models\User;
 use App\Services\FamilyBackup;
+use App\Services\FamilyRestore;
 use App\Services\Notifier;
 use App\Services\Telegram;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schedule;
+use Illuminate\Support\Facades\Storage;
 use Minishlink\WebPush\VAPID;
 
 use function Laravel\Prompts\password;
@@ -78,6 +80,35 @@ Artisan::command('family:backup {--all : Back up every family regardless of sche
         }
     });
 })->purpose('Back up families whose backup is due');
+
+Artisan::command('family:restore {file : Local .zip path, or a path on the backup disk such as backups/family-1/backup-….zip} {--name= : Name for the restored family}', function (FamilyRestore $restore) {
+    $file = $this->argument('file');
+    $tmp = null;
+    if (! is_file($file)) {
+        $disk = Storage::disk(config('familyhub.backup_disk'));
+        if (! $disk->exists($file)) {
+            $this->error("Backup not found: {$file}");
+
+            return 1;
+        }
+        $tmp = tempnam(sys_get_temp_dir(), 'fhr');
+        file_put_contents($tmp, $disk->get($file));
+        $file = $tmp;
+    }
+
+    try {
+        $family = $restore->restore($file, $this->option('name'));
+    } finally {
+        if ($tmp) {
+            @unlink($tmp);
+        }
+    }
+
+    $this->info("Restored as a new family #{$family->id} «{$family->name}». Existing data was not touched.");
+    if ($restore->createdUsers) {
+        $this->warn('New accounts (use «Забыли пароль?» or an admin reset link): '.implode(', ', $restore->createdUsers));
+    }
+})->purpose('Restore a family backup archive as a new family');
 
 Artisan::command('push:vapid', function () {
     try {
