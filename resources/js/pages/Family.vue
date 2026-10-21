@@ -16,6 +16,8 @@ const newLink = ref(null);
 const editingMember = ref(null);
 const backupBusy = ref(false);
 const resetLink = ref(null);
+const alertRegions = ref([]);
+const alertsConfigured = ref(false);
 
 const ROLES = {
     admin: { label: 'Администратор', hint: 'Приглашает, меняет роли, настраивает резервные копии' },
@@ -29,6 +31,10 @@ async function load() {
     members.value = data.members;
     store.members = data.members;
     if (store.user.is_admin) {
+        const alerts = (await api.get('/alerts')).data;
+        alertRegions.value = alerts.available;
+        alertsConfigured.value = alerts.configured;
+        family.value.alert_regions = alerts.watched;
         const [inv, bk] = await Promise.all([api.get('/family/invitations'), api.get('/family/backups')]);
         invitations.value = inv.data;
         backups.value = bk.data;
@@ -103,7 +109,12 @@ async function copyResetLink() {
 }
 
 async function saveFamily() {
-    await api.patch('/family', { name: family.value.name, backup_frequency: family.value.backup_frequency, backup_keep: family.value.backup_keep });
+    await api.patch('/family', {
+        name: family.value.name,
+        backup_frequency: family.value.backup_frequency,
+        backup_keep: family.value.backup_keep,
+        alert_regions: family.value.alert_regions,
+    });
     setUser({ ...store.user, family: { ...store.user.family, name: family.value.name } });
     toast('Настройки семьи сохранены');
 }
@@ -225,6 +236,15 @@ async function switchFamily(id) {
                         <label class="field-label" for="f-keep">Хранить копий</label>
                         <input id="f-keep" v-model.number="family.backup_keep" type="number" min="1" max="60" class="field">
                     </div>
+                    <fieldset class="sm:col-span-3">
+                        <legend class="field-label">Тревоги на главной: какие области показывать</legend>
+                        <p v-if="!alertsConfigured" class="mb-2 text-sm text-slate-600">Чтобы карточка тревог появилась, на сервере нужен ключ ALERTS_IN_UA_TOKEN (бесплатно на alerts.in.ua).</p>
+                        <div class="grid max-h-64 gap-1 overflow-y-auto rounded-xl bg-slate-50 p-2 sm:grid-cols-2">
+                            <label v-for="r in alertRegions" :key="r" class="flex min-h-11 items-center gap-2 rounded-lg px-2 hover:bg-white">
+                                <input v-model="family.alert_regions" type="checkbox" :value="r" class="h-5 w-5"> {{ r }}
+                            </label>
+                        </div>
+                    </fieldset>
                     <button class="btn-primary sm:col-span-3">Сохранить</button>
                 </form>
                 <div class="flex flex-wrap items-center gap-3">

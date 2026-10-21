@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { api } from '../api';
 import CheckinButtons from '../components/CheckinButtons.vue';
+import AirAlertCard from '../components/AirAlertCard.vue';
 import EmptyState from '../components/EmptyState.vue';
 import SafetyCheckCard from '../components/SafetyCheckCard.vue';
 import Icon from '../components/Icon.vue';
@@ -39,6 +40,7 @@ const tiles = computed(() => [
     <div class="space-y-6">
         <h1 class="page-title">{{ greeting }}, {{ store.user.name.split(' ')[0] }}!</h1>
 
+        <AirAlertCard />
         <SafetyCheckCard @changed="load" />
 
         <!-- Simple mode: four huge tiles -->

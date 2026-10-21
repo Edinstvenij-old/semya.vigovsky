@@ -6,6 +6,7 @@ use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Models\FamilyMember;
 use App\Models\Invitation;
+use App\Services\AirAlerts;
 use App\Services\FamilyBackup;
 use App\Support\FamilyContext;
 use Illuminate\Http\JsonResponse;
@@ -35,7 +36,7 @@ class FamilyController extends Controller
             ]);
 
         return response()->json([
-            'family' => $this->context->family()->only(['id', 'name', 'backup_frequency', 'backup_keep', 'last_backup_at']),
+            'family' => $this->context->family()->only(['id', 'name', 'backup_frequency', 'backup_keep', 'last_backup_at', 'alert_regions']),
             'members' => $members,
         ]);
     }
@@ -46,12 +47,14 @@ class FamilyController extends Controller
             'name' => ['sometimes', 'string', 'max:100'],
             'backup_frequency' => ['sometimes', Rule::in(['off', 'daily', 'weekly'])],
             'backup_keep' => ['sometimes', 'integer', 'min:1', 'max:60'],
+            'alert_regions' => ['sometimes', 'array', 'max:10'],
+            'alert_regions.*' => [Rule::in(AirAlerts::REGIONS)],
         ]);
 
         $family = $this->context->family();
         $family->update($data);
 
-        return response()->json(['family' => $family->only(['id', 'name', 'backup_frequency', 'backup_keep', 'last_backup_at'])]);
+        return response()->json(['family' => $family->only(['id', 'name', 'backup_frequency', 'backup_keep', 'last_backup_at', 'alert_regions'])]);
     }
 
     public function updateMember(Request $request, int $userId): JsonResponse

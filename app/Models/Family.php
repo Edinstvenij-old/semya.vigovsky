@@ -7,12 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['name', 'created_by', 'backup_frequency', 'backup_keep', 'last_backup_at'])]
+#[Fillable(['name', 'created_by', 'backup_frequency', 'backup_keep', 'last_backup_at', 'alert_regions'])]
 class Family extends Model
 {
     protected function casts(): array
     {
-        return ['last_backup_at' => 'datetime'];
+        return [
+            'last_backup_at' => 'datetime',
+            'alert_regions' => 'array',
+        ];
     }
 
     public function members(): BelongsToMany

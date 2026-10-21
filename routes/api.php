@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AlertController;
 use App\Http\Controllers\Api\AttachmentController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DashboardController;
@@ -70,6 +71,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('push/subscribe', [NotificationController::class, 'subscribe']);
         Route::post('push/unsubscribe', [NotificationController::class, 'unsubscribe']);
         Route::post('threads/{thread}/read', [ThreadController::class, 'markRead']);
+        Route::get('alerts', [AlertController::class, 'index']);
         Route::get('safety-checks/active', [SafetyController::class, 'active']);
         Route::post('safety-checks/{check}/respond', [SafetyController::class, 'respond']); // viewers answer too
 
