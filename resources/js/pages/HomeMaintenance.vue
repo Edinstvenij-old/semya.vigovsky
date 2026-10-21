@@ -5,7 +5,7 @@ import Avatar from '../components/Avatar.vue';
 import EmptyState from '../components/EmptyState.vue';
 import Icon from '../components/Icon.vue';
 import Modal from '../components/Modal.vue';
-import { date, daysUntil, dueText, MAINTENANCE_KINDS, money } from '../format';
+import { date, daysUntil, dueText, MAINTENANCE_KINDS, money, num } from '../format';
 import { loadMembers, store, toast } from '../store';
 
 const tab = ref('list');
@@ -161,8 +161,8 @@ const agenda = computed(() => calendar.value.events.filter((e) => e.date.startsW
                 <div v-if="item.logs?.[0]" class="rounded-xl bg-slate-50 p-3 text-sm text-slate-700">
                     Последний раз: {{ date(item.logs[0].done_on) }}<template v-if="item.logs[0].doer">, {{ item.logs[0].doer.name }}</template>
                     <template v-if="item.logs[0].amount"> · {{ money(item.logs[0].amount) }}</template>
-                    <template v-if="item.logs[0].reading_day"> · день {{ item.logs[0].reading_day }}</template>
-                    <template v-if="item.logs[0].reading_night"> / ночь {{ item.logs[0].reading_night }}</template>
+                    <template v-if="item.logs[0].reading_day"> · день {{ num(item.logs[0].reading_day) }}</template>
+                    <template v-if="item.logs[0].reading_night"> / ночь {{ num(item.logs[0].reading_night) }}</template>
                 </div>
                 <div v-if="store.user.can_write" class="mt-auto flex gap-2">
                     <button class="btn-primary flex-1" @click="openComplete(item)"><Icon name="circle-check" /> Сделано</button>
@@ -263,7 +263,7 @@ const agenda = computed(() => calendar.value.events.filter((e) => e.date.startsW
                 </div>
                 <template v-if="completing.kind === 'bill'">
                     <div>
-                        <label class="field-label" for="d-amount">Сумма, ₽</label>
+                        <label class="field-label" for="d-amount">Сумма, ₴</label>
                         <input id="d-amount" v-model="done.amount" type="number" step="0.01" min="0" class="field" inputmode="decimal">
                     </div>
                     <div class="grid grid-cols-2 gap-3">
@@ -277,7 +277,7 @@ const agenda = computed(() => calendar.value.events.filter((e) => e.date.startsW
                         </div>
                     </div>
                     <p v-if="completing.logs?.[0]?.reading_day" class="text-sm text-slate-600">
-                        Прошлые показания: день {{ completing.logs[0].reading_day }}, ночь {{ completing.logs[0].reading_night }}
+                        Прошлые показания: день {{ num(completing.logs[0].reading_day) }}, ночь {{ num(completing.logs[0].reading_night) }}
                     </p>
                 </template>
                 <div>

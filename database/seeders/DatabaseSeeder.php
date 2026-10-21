@@ -63,13 +63,22 @@ class DatabaseSeeder extends Seeder
         foreach (['Кабель ВВГнг-LS 3×2.5 — 25 м', 'Автомат C16 ×2', 'УЗО 30 мА', 'Розетки IP44 ×4'] as $i => $text) {
             $wiring->checklist()->create(['text' => $text, 'position' => $i, 'is_done' => $i < 2]);
         }
-        $wiring->links()->create(['url' => 'https://example.com/cable', 'title' => 'Кабель в строительном магазине', 'price' => 3250]);
+        $wiring->links()->create(['url' => 'https://example.com/cable', 'title' => 'Кабель в строительном магазине', 'price' => 1450]);
 
         $ups = Task::create([
             'family_id' => $family->id, 'category_id' => $cat['Ремонт техники'], 'created_by' => $yuriy->id,
             'assignee_id' => $yuriy->id, 'title' => 'Заменить аккумулятор в ИБП роутера', 'status' => 'todo',
         ]);
         $ups->checklist()->create(['text' => 'AGM 12V 9Ah, клеммы F2', 'position' => 0]);
+
+        $blackout = Task::create([
+            'family_id' => $family->id, 'category_id' => $cat['Покупки'], 'created_by' => $papa->id,
+            'assignee_id' => $nikolay->id, 'title' => 'Запас на отключения света', 'status' => 'todo', 'priority' => 'high',
+            'due_date' => today()->addDays(3),
+        ]);
+        foreach (['Павербанк 20 000 мА·ч ×2', 'Налобные фонарики ×3', 'Батарейки AA ×12', 'Вода 6 л ×4'] as $i => $text) {
+            $blackout->checklist()->create(['text' => $text, 'position' => $i, 'is_done' => $i === 0]);
+        }
 
         Task::create([
             'family_id' => $family->id, 'category_id' => $cat['Покупки'], 'created_by' => $mama->id,
@@ -80,9 +89,18 @@ class DatabaseSeeder extends Seeder
             'assignee_id' => $papa->id, 'title' => 'Повесить полки в прихожей', 'status' => 'done', 'completed_at' => now()->subDay(),
         ]);
 
-        MaintenanceItem::create([
+        $power = MaintenanceItem::create([
             'family_id' => $family->id, 'title' => 'Оплатить электроэнергию (день/ночь)', 'kind' => 'bill',
             'interval_days' => 30, 'next_due_on' => today()->addDays(2), 'assignee_id' => $mama->id,
+            'description' => 'Двухзонный учёт: T1 — день, T2 — ночь (23:00–7:00).',
+        ]);
+        $power->logs()->create([
+            'done_by' => $mama->id, 'done_on' => today()->subDays(28), 'amount' => 1186.40,
+            'reading_day' => 24518, 'reading_night' => 9731,
+        ]);
+        MaintenanceItem::create([
+            'family_id' => $family->id, 'title' => 'Зарядить зарядную станцию и проверить генератор', 'kind' => 'check',
+            'interval_days' => 14, 'next_due_on' => today()->addDay(), 'assignee_id' => $papa->id,
         ]);
         MaintenanceItem::create([
             'family_id' => $family->id, 'title' => 'Заменить картриджи фильтра воды', 'kind' => 'consumable',
@@ -94,20 +112,32 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $trip = Trip::create([
-            'family_id' => $family->id, 'created_by' => $yuriy->id, 'title' => 'Юрий летит в Тбилиси',
-            'destination' => 'Тбилиси', 'starts_at' => now()->subHours(5), 'ends_at' => now()->addDays(6),
+            'family_id' => $family->id, 'created_by' => $yuriy->id, 'title' => 'Юрий едет в Тбилиси через Кишинёв',
+            'destination' => 'Тбилиси', 'starts_at' => now()->subHours(9), 'ends_at' => now()->addDays(6),
         ]);
         $trip->travellers()->sync([$yuriy->id]);
 
+        // Typical route from Odesa: bus to Chișinău, then a flight from there.
         TravelDocument::create([
             'family_id' => $family->id, 'trip_id' => $trip->id, 'traveller_id' => $yuriy->id, 'uploaded_by' => $yuriy->id,
-            'type' => 'flight', 'title' => 'Москва — Стамбул — Тбилиси', 'carrier' => 'Turkish Airlines', 'reference' => 'TK 414',
-            'booking_code' => 'X7KQ2M', 'from_place' => 'Москва (VKO)', 'to_place' => 'Стамбул (IST)',
-            'departs_at' => now()->subHours(3), 'arrives_at' => now()->addHour(),
+            'type' => 'bus', 'title' => 'Одесса — Кишинёв', 'carrier' => 'Междугородний автобус', 'reference' => 'Рейс 0715, место 14',
+            'from_place' => 'Одесса, автовокзал', 'to_place' => 'Кишинёв, центральный автовокзал',
+            'departs_at' => now()->subHours(9), 'arrives_at' => now()->subHours(3),
+            'notes' => 'Граница: Маяки — Удобное. Паспорт и посадочный талон на самолёт держать под рукой.',
+        ]);
+        TravelDocument::create([
+            'family_id' => $family->id, 'trip_id' => $trip->id, 'traveller_id' => $yuriy->id, 'uploaded_by' => $yuriy->id,
+            'type' => 'flight', 'title' => 'Кишинёв — Тбилиси', 'carrier' => 'Авиакомпания', 'reference' => '5F 787',
+            'booking_code' => 'X7KQ2M', 'from_place' => 'Кишинёв (KIV)', 'to_place' => 'Тбилиси (TBS)',
+            'departs_at' => now()->addHour(), 'arrives_at' => now()->addHours(4),
         ]);
 
-        foreach ([[CheckinType::ToAirport, 300], [CheckinType::BorderCrossed, 220], [CheckinType::Boarded, 190]] as [$type, $minutes]) {
-            Checkin::create(['family_id' => $family->id, 'user_id' => $yuriy->id, 'trip_id' => $trip->id, 'type' => $type])
+        foreach ([
+            [CheckinType::LeftHome, 560, null],
+            [CheckinType::BorderCrossed, 400, 'Маяки — Удобное'],
+            [CheckinType::AtAirport, 90, 'Кишинёв, жду посадку'],
+        ] as [$type, $minutes, $note]) {
+            Checkin::create(['family_id' => $family->id, 'user_id' => $yuriy->id, 'trip_id' => $trip->id, 'type' => $type, 'note' => $note])
                 ->forceFill(['created_at' => now()->subMinutes($minutes)])->save();
         }
         Checkin::create(['family_id' => $family->id, 'user_id' => $mama->id, 'type' => CheckinType::BackHome])

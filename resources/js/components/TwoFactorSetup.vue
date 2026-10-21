@@ -50,7 +50,7 @@ function copyCodes() {
     <div class="space-y-4">
         <form v-if="step === 'password'" class="space-y-4" @submit.prevent="start">
             <p>Двухфакторная защита нужна для доступа к билетам и документам. Понадобится приложение-аутентификатор на телефоне
-                (Google Authenticator, Яндекс Ключ, Aegis, 1Password и т. п.).</p>
+                (Google Authenticator, Microsoft Authenticator, Aegis, 1Password и т. п.).</p>
             <div>
                 <label class="field-label" for="tf-pass">Ваш пароль</label>
                 <input id="tf-pass" v-model="password" type="password" class="field" autocomplete="current-password" required>

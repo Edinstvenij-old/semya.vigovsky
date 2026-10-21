@@ -215,7 +215,7 @@ function copy(text) {
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div class="sm:col-span-2">
                         <label class="field-label" for="d-title">Название</label>
-                        <input id="d-title" v-model="form.title" class="field" required placeholder="Москва — Стамбул, мама">
+                        <input id="d-title" v-model="form.title" class="field" required placeholder="Одесса — Кишинёв, мама">
                         <p v-if="errors.title" class="field-error">{{ errors.title }}</p>
                     </div>
                     <div>

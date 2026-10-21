@@ -65,7 +65,8 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    // Family time: due dates, "today" and scheduled reminders follow Kyiv time. API dates are sent as UTC ISO strings.
+    'timezone' => env('APP_TIMEZONE', 'Europe/Kyiv'),
 
     /*
     |--------------------------------------------------------------------------

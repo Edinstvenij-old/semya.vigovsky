@@ -8,10 +8,10 @@
 
 | Что | Рекомендация |
 |---|---|
-| VPS | Ubuntu 24.04, **2 ГБ RAM**, 1–2 vCPU, 20+ ГБ диска (≈ 4–6 € / 400–600 ₽ в месяц: Hetzner, Timeweb Cloud, Selectel, Aeza) |
-| Домен | например `vigovsky.ru` или поддомен `semya.vigovsky.ru` |
-| DNS | A-запись домена → IP сервера (и AAAA, если есть IPv6) |
-| Почта (по желанию) | SMTP для писем «Забыли пароль?»: Яндекс 360, Gmail (пароль приложения), Mailgun и т. п. |
+| VPS | Ubuntu 24.04, **2+ ГБ RAM**, 1–2 vCPU, 20+ ГБ диска. Рекомендуется дата-центр в ЕС (Германия/Финляндия) — не зависит от отключений света в Украине: **Hetzner** (≈ 4–6 € в месяц, оплата украинской Visa/Mastercard), DigitalOcean, Vultr |
+| Домен | например `vigovsky.od.ua` (регистраторы imena.ua, hostiq.ua) или `.com.ua` / `.com`; сайт — на поддомене `semya.vigovsky.od.ua` |
+| DNS | A-запись `semya` → IP сервера (и AAAA, если есть IPv6) |
+| Почта (по желанию) | SMTP для писем «Забыли пароль?»: Gmail (пароль приложения), ukr.net, Mailgun, Brevo и т. п. |
 
 Порты 80 и 443 на сервере должны быть открыты — через них Caddy получает сертификат.
 
@@ -19,6 +19,7 @@
 
 ```bash
 ssh root@IP_СЕРВЕРА
+timedatectl set-timezone Europe/Kyiv
 apt update && apt -y upgrade
 curl -fsSL https://get.docker.com | sh          # Docker + docker compose
 adduser --disabled-password --gecos "" deploy && usermod -aG docker deploy
@@ -45,7 +46,7 @@ cd ~/family-hub
 ## 4. Первый запуск
 
 ```bash
-./deploy.sh init semya.vigovsky.ru nikvigovskij@gmail.com
+./deploy.sh init semya.vigovsky.od.ua nikvigovskij@gmail.com
 ```
 
 Скрипт сам:
@@ -53,7 +54,7 @@ cd ~/family-hub
 - собирает образы, запускает всё и применяет миграции;
 - спрашивает название семьи, имя, email и пароль первого администратора.
 
-Через минуту откройте `https://semya.vigovsky.ru`, войдите и раздайте приглашения в разделе «Семья».
+Через минуту откройте `https://semya.vigovsky.od.ua`, войдите и раздайте приглашения в разделе «Семья».
 
 > `.env` на сервере — единственное место с секретами. Он не попадает в Git. Сохраните копию в менеджер паролей.
 
@@ -62,13 +63,14 @@ cd ~/family-hub
 В `~/family-hub/.env`:
 
 ```env
+# Пример для Gmail: в аккаунте Google включите 2FA и создайте «пароль приложения»
 MAIL_MAILER=smtp
-MAIL_HOST=smtp.yandex.ru
+MAIL_HOST=smtp.gmail.com
 MAIL_PORT=465
 MAIL_SCHEME=smtps
-MAIL_USERNAME=robot@vigovsky.ru
+MAIL_USERNAME=ваш.адрес@gmail.com
 MAIL_PASSWORD=пароль-приложения
-MAIL_FROM_ADDRESS=robot@vigovsky.ru
+MAIL_FROM_ADDRESS=ваш.адрес@gmail.com
 MAIL_FROM_NAME="Семья Виговских"
 ```
 

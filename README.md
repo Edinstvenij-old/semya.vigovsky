@@ -190,7 +190,7 @@ public/sw.js        service worker для Web Push
 PostgreSQL + MinIO (S3). На чистом сервере с Docker:
 
 ```bash
-./deploy.sh init semya.example.ru you@example.com   # секреты, сборка, миграции, первый администратор
+./deploy.sh init semya.vigovsky.od.ua you@example.com  # секреты, сборка, миграции, первый администратор
 ./deploy.sh                                         # последующие обновления
 ```
 

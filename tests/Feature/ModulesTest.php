@@ -82,12 +82,12 @@ class ModulesTest extends TestCase
 
         // Verified in this session → access granted.
         $doc = $this->actingAs($admin)->post('/api/documents', [
-            'title' => 'Рейс Москва — Тбилиси', 'type' => 'flight', 'reference' => 'SU1234',
+            'title' => 'Рейс Кишинёв — Тбилиси', 'type' => 'flight', 'reference' => 'H41234',
             'departs_at' => now()->addDays(3)->toDateTimeString(),
             'files' => [UploadedFile::fake()->create('boarding.pdf', 100, 'application/pdf')],
         ], ['Accept' => 'application/json'])->assertCreated()->json();
 
-        $this->actingAs($admin)->getJson('/api/documents?q=SU12')->assertOk()->assertJsonCount(1);
+        $this->actingAs($admin)->getJson('/api/documents?q=H412')->assertOk()->assertJsonCount(1);
 
         // New session without the 2FA mark → challenge.
         $this->flushSession();

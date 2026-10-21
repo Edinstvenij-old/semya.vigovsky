@@ -49,7 +49,13 @@ export function dueText(ymd) {
 
 export function money(value) {
     if (value === null || value === undefined || value === '') return '';
-    return Number(value).toLocaleString(locale, { maximumFractionDigits: 2 }) + ' ₽';
+    return Number(value).toLocaleString(locale, { maximumFractionDigits: 2 }) + ' ₴';
+}
+
+/** Meter readings and other plain numbers: 24518.00 → "24 518". */
+export function num(value) {
+    if (value === null || value === undefined || value === '') return '';
+    return Number(value).toLocaleString(locale, { maximumFractionDigits: 2 });
 }
 
 export function bytes(n) {
