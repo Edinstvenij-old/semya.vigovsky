@@ -82,11 +82,14 @@ const tiles = computed(() => [
                 </div>
                 <ul v-if="data?.my_tasks.length" class="space-y-2">
                     <li v-for="t in data.my_tasks" :key="t.id">
-                        <RouterLink :to="`/tasks/${t.id}`" class="flex min-h-12 items-center gap-3 rounded-xl p-2 hover:bg-slate-100">
-                            <span class="h-3 w-3 shrink-0 rounded-full" :style="{ background: t.category?.color || '#64748b' }" />
-                            <span class="min-w-0 flex-1 break-words font-semibold">{{ t.title }}</span>
-                            <span v-if="t.due_date" class="shrink-0 text-sm" :class="daysUntil(t.due_date) < 0 ? 'font-bold text-red-700' : 'text-slate-600'">
-                                {{ date(t.due_date) }}
+                        <!-- Date under the title: in a half-width card a side-by-side date squeezed the title. -->
+                        <RouterLink :to="`/tasks/${t.id}`" class="flex min-h-12 items-start gap-3 rounded-xl p-2 hover:bg-slate-100">
+                            <span class="mt-2 h-3 w-3 shrink-0 rounded-full" :style="{ background: t.category?.color || '#64748b' }" />
+                            <span class="min-w-0 flex-1">
+                                <span class="block font-semibold">{{ t.title }}</span>
+                                <span v-if="t.due_date" class="block text-sm" :class="daysUntil(t.due_date) < 0 ? 'font-bold text-red-700' : 'text-slate-600'">
+                                    {{ $t('до :p0', { p0: date(t.due_date) }) }}
+                                </span>
                             </span>
                         </RouterLink>
                     </li>
@@ -100,12 +103,16 @@ const tiles = computed(() => [
                     <RouterLink to="/home" class="font-semibold text-brand-700 underline">{{ $t('Календарь') }}</RouterLink>
                 </div>
                 <ul v-if="data?.maintenance_due.length" class="space-y-2">
-                    <li v-for="m in data.maintenance_due" :key="m.id" class="flex min-h-12 flex-wrap items-center gap-x-3 gap-y-1 rounded-xl p-2">
-                        <Icon :name="m.kind === 'bill' ? 'zap' : m.kind === 'consumable' ? 'droplets' : 'wrench'" />
-                        <span class="min-w-0 flex-1 break-words font-semibold">{{ m.title }}</span>
-                        <span class="chip" :class="daysUntil(m.next_due_on) < 0 ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-900'">
-                            {{ dueText(m.next_due_on) }}
-                        </span>
+                    <li v-for="m in data.maintenance_due" :key="m.id">
+                        <RouterLink to="/home" class="flex min-h-12 items-start gap-3 rounded-xl p-2 hover:bg-slate-100">
+                            <Icon :name="m.kind === 'bill' ? 'zap' : m.kind === 'consumable' ? 'droplets' : 'wrench'" class="mt-0.5" />
+                            <span class="min-w-0 flex-1">
+                                <span class="block font-semibold">{{ m.title }}</span>
+                                <span class="chip mt-1" :class="daysUntil(m.next_due_on) < 0 ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-900'">
+                                    {{ dueText(m.next_due_on) }}
+                                </span>
+                            </span>
+                        </RouterLink>
                     </li>
                 </ul>
                 <EmptyState v-else-if="data" icon="circle-check" :text="$t('В ближайшие две недели ничего')" />

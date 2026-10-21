@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { api, errorText, fieldErrors } from '../api';
 import Avatar from '../components/Avatar.vue';
 import EmptyState from '../components/EmptyState.vue';
@@ -9,6 +10,7 @@ import { date, daysUntil, dueText, MAINTENANCE_KINDS, money, monthYear, num } fr
 import { loadMembers, store, toast } from '../store';
 import { t } from '../i18n';
 
+const router = useRouter();
 const tab = ref('list');
 const items = ref([]);
 const editing = ref(null); // {} for new
@@ -122,6 +124,17 @@ function shiftMonth(delta) {
 
 const EVENT_STYLE = { maintenance: 'bg-purple-100 text-purple-900', task: 'bg-orange-100 text-orange-900', trip: 'bg-blue-100 text-blue-900' };
 const agenda = computed(() => calendar.value.events.filter((e) => e.date.startsWith(month.value)));
+
+/** Clicking an event opens what it is about. */
+function openEvent(e) {
+    if (e.type === 'task') router.push(`/tasks/${e.id}`);
+    else if (e.type === 'trip') router.push('/travel');
+    else {
+        const item = items.value.find((i) => i.id === e.id);
+        if (item && store.user.can_write) openEdit(item);
+        else tab.value = 'list';
+    }
+}
 </script>
 
 <template>
@@ -188,16 +201,22 @@ const agenda = computed(() => calendar.value.events.filter((e) => e.date.startsW
                     <div v-for="day in week" :key="day.key" class="min-h-24 rounded-lg p-1"
                          :class="[day.inMonth ? 'bg-slate-50' : 'bg-white text-slate-400', day.today ? 'ring-2 ring-brand-600' : '']">
                         <div class="text-sm font-bold">{{ day.day }}</div>
-                        <div v-for="(e, j) in day.events" :key="j" class="mt-0.5 truncate rounded px-1 text-xs font-semibold"
-                             :class="[EVENT_STYLE[e.type], e.projected ? 'opacity-60' : '']" :title="e.title">{{ e.title }}</div>
+                        <!-- Wrap up to 3 lines instead of cutting to «Замени…»; full titles are also listed below. -->
+                        <button v-for="(e, j) in day.events" :key="j" type="button"
+                                class="mt-0.5 line-clamp-3 w-full break-words rounded px-1 text-left text-xs font-semibold leading-tight hover:ring-2 hover:ring-brand-600"
+                                :class="[EVENT_STYLE[e.type], e.projected ? 'opacity-60' : '']" :title="e.title" @click="openEvent(e)">{{ e.title }}</button>
                     </div>
                 </div>
             </div>
-            <!-- Mobile: agenda list is easier to read than a tiny grid -->
-            <ul class="space-y-2 md:hidden">
-                <li v-for="(e, i) in agenda" :key="i" class="flex items-center gap-3 rounded-xl p-2" :class="EVENT_STYLE[e.type]">
-                    <span class="w-20 shrink-0 font-bold">{{ date(e.date) }}</span>
-                    <span class="font-semibold">{{ e.title }}</span>
+            <!-- Full-title list of the month: the only view on phones, under the grid on bigger screens -->
+            <h3 class="mb-2 mt-6 hidden text-lg font-bold md:block">{{ $t('События месяца') }}</h3>
+            <ul class="space-y-2">
+                <li v-for="(e, i) in agenda" :key="i">
+                    <button type="button" class="flex w-full items-center gap-3 rounded-xl p-2 text-left hover:ring-2 hover:ring-brand-600"
+                            :class="[EVENT_STYLE[e.type], e.projected ? 'opacity-70' : '']" @click="openEvent(e)">
+                        <span class="w-28 shrink-0 font-bold">{{ date(e.date) }}</span>
+                        <span class="min-w-0 flex-1 font-semibold">{{ e.title }}</span>
+                    </button>
                 </li>
                 <li v-if="!agenda.length" class="text-slate-600">{{ $t('В этом месяце событий нет.') }}</li>
             </ul>
