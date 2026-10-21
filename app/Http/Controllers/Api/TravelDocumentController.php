@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Attachment;
 use App\Models\TravelDocument;
+use App\Services\FlightStatus;
 use App\Support\FamilyContext;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -52,6 +53,17 @@ class TravelDocumentController extends Controller
         $this->storeFiles($request, $document);
 
         return response()->json($document->load(['traveller:id,name,avatar_color', 'trip:id,title', 'attachments']));
+    }
+
+    public function flightStatus(TravelDocument $document, FlightStatus $flights): JsonResponse
+    {
+        abort_unless($flights->configured(), 422, 'Проверка рейсов не настроена на сервере (FLIGHT_STATUS_API_KEY).');
+        abort_unless($document->type === 'flight' && $document->reference && $document->departs_at, 422, 'Нужны номер рейса и дата вылета.');
+
+        $status = $flights->lookup($document->reference, $document->departs_at);
+        abort_unless($status, 404, 'Рейс не найден. Проверьте номер (например, PS 9124) и дату.');
+
+        return response()->json($status);
     }
 
     public function destroy(TravelDocument $document): JsonResponse

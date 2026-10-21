@@ -131,6 +131,7 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::post('documents', [TravelDocumentController::class, 'store']);
                 Route::post('documents/{document}', [TravelDocumentController::class, 'update']); // POST: multipart
                 Route::delete('documents/{document}', [TravelDocumentController::class, 'destroy']);
+                Route::get('documents/{document}/flight-status', [TravelDocumentController::class, 'flightStatus']);
             });
 
             Route::get('threads', [ThreadController::class, 'index']);

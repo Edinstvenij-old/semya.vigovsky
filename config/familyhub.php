@@ -43,6 +43,11 @@ return [
         'webhook_secret' => env('TELEGRAM_WEBHOOK_SECRET'),
     ],
 
+    // Live flight status (AeroDataBox via RapidAPI).
+    'flights' => [
+        'api_key' => env('FLIGHT_STATUS_API_KEY'),
+    ],
+
     // Air-raid alerts from alerts.in.ua (request a free token on their site).
     'alerts' => [
         'token' => env('ALERTS_IN_UA_TOKEN'),

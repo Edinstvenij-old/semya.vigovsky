@@ -25,6 +25,16 @@ const form = reactive({});
 const files = ref([]);
 const errors = ref({});
 const busy = ref(false);
+const flight = reactive({}); // document id → status | 'loading' | error text
+
+async function checkFlight(d) {
+    flight[d.id] = 'loading';
+    try {
+        flight[d.id] = (await api.get(`/documents/${d.id}/flight-status`)).data;
+    } catch (e) {
+        flight[d.id] = errorText(e);
+    }
+}
 
 async function load() {
     try {
@@ -203,6 +213,28 @@ function copy(text) {
                         <a v-for="a in d.attachments" :key="a.id" :href="a.url" target="_blank" class="btn-secondary">
                             <Icon :name="a.is_image ? 'image' : 'file-text'" /> {{ a.original_name }}
                         </a>
+                    </div>
+                    <div v-if="d.type === 'flight' && d.reference && store.config.flight_status_enabled">
+                        <button class="btn-secondary" :disabled="flight[d.id] === 'loading'" @click="checkFlight(d)">
+                            <Icon name="refresh-cw" /> {{ flight[d.id] === 'loading' ? 'Проверяем…' : 'Статус рейса' }}
+                        </button>
+                        <div v-if="typeof flight[d.id] === 'object'" class="mt-2 space-y-1 rounded-xl p-3" role="status"
+                             :class="flight[d.id].status === 'Canceled' ? 'bg-red-100 text-red-900' : flight[d.id].delay_minutes ? 'bg-amber-100 text-amber-950' : 'bg-emerald-50 text-emerald-950'">
+                            <p class="text-lg font-bold">{{ flight[d.id].status_label }}<template v-if="flight[d.id].delay_minutes"> · задержка {{ flight[d.id].delay_minutes }} мин</template></p>
+                            <p>
+                                Вылет {{ flight[d.id].departure.airport }}:
+                                <b>{{ dateTime(flight[d.id].departure.revised || flight[d.id].departure.scheduled) }}</b>
+                                <template v-if="flight[d.id].departure.terminal"> · терминал {{ flight[d.id].departure.terminal }}</template>
+                                <template v-if="flight[d.id].departure.gate"> · выход {{ flight[d.id].departure.gate }}</template>
+                            </p>
+                            <p>
+                                Прилёт {{ flight[d.id].arrival.airport }}:
+                                <b>{{ dateTime(flight[d.id].arrival.revised || flight[d.id].arrival.scheduled) }}</b>
+                                <template v-if="flight[d.id].arrival.baggage_belt"> · лента {{ flight[d.id].arrival.baggage_belt }}</template>
+                            </p>
+                            <p class="text-sm opacity-80">Проверено {{ dateTime(flight[d.id].checked_at) }}</p>
+                        </div>
+                        <p v-else-if="flight[d.id] && flight[d.id] !== 'loading'" class="field-error mt-2">{{ flight[d.id] }}</p>
                     </div>
                     <p v-if="d.trip" class="text-sm text-slate-600">Поездка: {{ d.trip.title }}</p>
                 </article>
