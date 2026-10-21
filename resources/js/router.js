@@ -38,6 +38,14 @@ router.beforeEach((to) => {
     return true;
 });
 
+// After a deploy, a tab opened earlier asks for old code chunks that no longer exist:
+// load the new version of the page instead of failing silently.
+router.onError((error, to) => {
+    if (/dynamically imported module|Importing a module script failed/i.test(String(error?.message))) {
+        window.location.assign(to.fullPath);
+    }
+});
+
 router.afterEach((to) => {
     document.title = `${to.meta.title || ''} · ${store.config.app_name}`;
 });
