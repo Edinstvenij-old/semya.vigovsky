@@ -1,0 +1,20 @@
+# Caddy obtains and renews a free Let's Encrypt certificate for APP_DOMAIN automatically.
+{
+	email {$ACME_EMAIL}
+}
+
+{$APP_DOMAIN} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Robots-Tag "noindex, nofollow, noarchive, nosnippet"
+		-Server
+	}
+
+	request_body {
+		max_size 110MB
+	}
+
+	reverse_proxy web:80
+}

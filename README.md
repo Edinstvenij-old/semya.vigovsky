@@ -186,16 +186,15 @@ public/sw.js        service worker для Web Push
 
 ## Деплой
 
-**Docker** (`docker-compose.yml`): nginx + php-fpm + очередь + планировщик + PostgreSQL + MinIO (S3).
+**Docker** (`docker-compose.yml`): Caddy (автоматический HTTPS) + nginx + php-fpm + очередь + планировщик +
+PostgreSQL + MinIO (S3). На чистом сервере с Docker:
 
 ```bash
-cp .env.example .env    # APP_KEY, APP_URL, DB_PASSWORD, AWS_*, VAPID_*, APP_ENV=production, APP_DEBUG=false
-docker compose up -d --build
-docker compose exec app php artisan migrate --force
-docker compose exec app php artisan family:create
+./deploy.sh init semya.example.ru you@example.com   # секреты, сборка, миграции, первый администратор
+./deploy.sh                                         # последующие обновления
 ```
 
-Поставьте TLS-терминатор (Caddy/Traefik/certbot) перед портом `APP_PORT` — Web Push и 2FA требуют HTTPS.
+Пошагово (сервер, домен, deploy key, почта, автодеплой, бэкапы): [docs/DEPLOY.md](docs/DEPLOY.md).
 
 **CI/CD** (`.github/workflows/ci.yml`): на каждый push/PR — сборка фронтенда, Pint, тесты на SQLite
 и PostgreSQL. Деплой по SSH в ветке `main` включается переменной репозитория `DEPLOY_ENABLED=true`

@@ -80,7 +80,4 @@ jobs:
           script: |
             set -e
             cd ${{ secrets.DEPLOY_PATH }}
-            git pull --ff-only
-            docker compose up -d --build
-            docker compose exec -T app php artisan migrate --force
-            docker compose exec -T app php artisan optimize
+            ./deploy.sh update
