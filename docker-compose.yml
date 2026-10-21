@@ -1,0 +1,82 @@
+# Production-like stack: nginx + php-fpm + queue worker + scheduler + PostgreSQL + MinIO (S3).
+#   cp .env.example .env   # set APP_KEY, DB_*, AWS_*, VAPID_*
+#   docker compose up -d --build
+#   docker compose exec app php artisan migrate --force
+#   docker compose exec app php artisan family:create
+x-app: &app
+  build: { context: ., target: app }
+  env_file: .env
+  environment:
+    DB_CONNECTION: pgsql
+    DB_HOST: db
+    DB_PORT: 5432
+    DB_DATABASE: ${DB_DATABASE:-familyhub}
+    DB_USERNAME: ${DB_USERNAME:-familyhub}
+    DB_PASSWORD: ${DB_PASSWORD:-change-me}
+    FAMILYHUB_FILES_DISK: s3
+    FAMILYHUB_BACKUP_DISK: s3
+    AWS_ENDPOINT: http://minio:9000
+    AWS_USE_PATH_STYLE_ENDPOINT: "true"
+    AWS_BUCKET: ${AWS_BUCKET:-familyhub}
+  volumes:
+    - storage:/var/www/html/storage/app
+  depends_on:
+    db: { condition: service_healthy }
+  restart: unless-stopped
+
+services:
+  app:
+    <<: *app
+
+  queue:
+    <<: *app
+    command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
+
+  scheduler:
+    <<: *app
+    command: php artisan schedule:work
+
+  web:
+    build: { context: ., target: web }
+    ports: ["${APP_PORT:-8080}:80"]
+    depends_on: [app]
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-familyhub}
+      POSTGRES_USER: ${DB_USERNAME:-familyhub}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-change-me}
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-familyhub}"]
+      interval: 5s
+      retries: 10
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${AWS_ACCESS_KEY_ID:-familyhub}
+      MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY:-change-me-please}
+    volumes: [minio:/data]
+    ports: ["127.0.0.1:9001:9001"] # console only on localhost
+    restart: unless-stopped
+
+  minio-init:
+    image: minio/mc:RELEASE.2025-04-16T18-13-26Z
+    depends_on: [minio]
+    entrypoint: >
+      sh -c "sleep 3 && mc alias set local http://minio:9000 $${MINIO_USER} $${MINIO_PASS}
+      && mc mb --ignore-existing local/$${BUCKET} && mc anonymous set none local/$${BUCKET}"
+    environment:
+      MINIO_USER: ${AWS_ACCESS_KEY_ID:-familyhub}
+      MINIO_PASS: ${AWS_SECRET_ACCESS_KEY:-change-me-please}
+      BUCKET: ${AWS_BUCKET:-familyhub}
+
+volumes:
+  pgdata:
+  minio:
+  storage:

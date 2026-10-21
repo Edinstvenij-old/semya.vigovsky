@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Square icon from the family crest: silver W on a red shield -->
+  <rect width="512" height="512" rx="112" fill="#5a1010"/>
+  <path d="M120 96h272v176c0 92-62 140-136 168-74-28-136-76-136-168z" fill="#d62a24" stroke="#fff" stroke-width="10"/>
+  <path d="M146 210h44l34 78 32-58 32 58 34-78h44l-78 150-32-58-32 58z" fill="#fff"/>
+</svg>

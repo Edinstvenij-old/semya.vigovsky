@@ -1,0 +1,81 @@
+@import 'tailwindcss';
+
+@source '../js/**/*.vue';
+@source '../js/**/*.js';
+
+/*
+ * System fonts only: no third-party font CDN (privacy), full Cyrillic support.
+ * Font size scales with the user's preference (html font-size is set from JS).
+ */
+@theme {
+    --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+
+    /* Family crest red (Abdank: silver W on a red field). */
+    --color-brand-50: #fdf2f2;
+    --color-brand-100: #fbe0e0;
+    --color-brand-600: #c62828;
+    --color-brand-700: #b01e1e;
+    --color-brand-800: #8c1717;
+    --color-brand-900: #5a1010;
+}
+
+@layer base {
+    html {
+        -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+        @apply bg-slate-100 text-slate-900 antialiased;
+        line-height: 1.5;
+    }
+
+    /* Always-visible focus ring for keyboard users. */
+    :focus-visible {
+        outline: 3px solid #f59e0b;
+        outline-offset: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            transition: none !important;
+            animation: none !important;
+        }
+    }
+}
+
+/* 48px minimum tap target everywhere. */
+@utility btn {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-4 py-2 font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+@layer components {
+    .card {
+        @apply rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200;
+    }
+
+    .btn-primary { @apply btn bg-brand-700 text-white hover:bg-brand-800; }
+    .btn-secondary { @apply btn bg-white text-slate-900 ring-2 ring-slate-300 hover:bg-slate-50; }
+    /* Primary is red now, so the alarm button is black with a red ring to stay distinct. */
+    .btn-danger { @apply btn bg-slate-900 text-white ring-2 ring-red-600 hover:bg-black; }
+    .btn-ghost { @apply btn text-slate-700 hover:bg-slate-200; }
+
+    .field-label { @apply mb-1 block font-semibold text-slate-800; }
+    .field {
+        @apply block min-h-12 w-full rounded-xl border-2 border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-500 focus:border-brand-600 focus:outline-none;
+    }
+    .field-error { @apply mt-1 text-sm font-semibold text-red-700; }
+
+    .chip { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-sm font-semibold; }
+
+    .page-title { @apply text-2xl font-bold text-slate-900 md:text-3xl; }
+}
+
+/* High contrast mode: black on white, thick borders, no greys. */
+.high-contrast body { @apply bg-white text-black; }
+.high-contrast .card { @apply ring-2 ring-black shadow-none; }
+.high-contrast .text-slate-500,
+.high-contrast .text-slate-600,
+.high-contrast .text-slate-700 { @apply text-black; }
+.high-contrast .field { @apply border-black; }
+.high-contrast .btn-secondary { @apply ring-black; }
+.high-contrast .btn-primary { @apply bg-black; }

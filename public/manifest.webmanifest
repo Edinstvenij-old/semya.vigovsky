@@ -1,0 +1,12 @@
+{
+    "name": "Family Hub",
+    "short_name": "Семья",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#f1f5f9",
+    "theme_color": "#5a1010",
+    "lang": "ru",
+    "icons": [
+        { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    ]
+}
