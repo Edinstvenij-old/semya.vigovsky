@@ -77,13 +77,14 @@ function openUrgent() {
 
         <!-- Desktop sidebar -->
         <!-- Width in px, not rem: with large text the menu must not eat the content area on laptops. -->
-        <aside class="sticky top-0 hidden h-screen w-[clamp(230px,22vw,300px)] shrink-0 flex-col overflow-y-auto bg-brand-900 p-4 text-white md:flex"
+        <aside class="sticky top-0 hidden h-screen w-[clamp(240px,22vw,300px)] shrink-0 flex-col overflow-y-auto bg-brand-900 p-[0.8em] text-white [scrollbar-width:thin] md:flex"
                :style="{ fontSize: 'min(1rem, 18px)' }">
-            <RouterLink to="/" class="mb-6 flex items-center gap-3 px-2">
-                <img :src="'/crest.png'" alt="" class="h-14 w-auto shrink-0 drop-shadow">
-                <span>
-                    <span class="block text-lg font-bold leading-tight">{{ store.config.app_name }}</span>
-                    <span class="block text-sm text-red-200">{{ store.user?.family?.name }}</span>
+            <!-- Sizes in em: everything inside follows the capped menu font, not the global text size. -->
+            <RouterLink to="/" class="mb-[1.2em] flex items-center gap-[0.6em] px-[0.4em]">
+                <img :src="'/crest.png'" alt="" class="h-[3.2em] w-auto shrink-0 drop-shadow">
+                <span class="min-w-0">
+                    <span class="block break-words text-[1.15em] font-bold leading-tight">{{ store.config.app_name }}</span>
+                    <span class="block break-words text-[0.85em] text-red-200">{{ store.user?.family?.name }}</span>
                 </span>
             </RouterLink>
             <nav class="flex flex-1 flex-col gap-1" :aria-label="$t('Основное меню')">
@@ -91,23 +92,26 @@ function openUrgent() {
                     v-for="item in [...nav, ...secondary]"
                     :key="item.to"
                     :to="item.to"
-                    class="flex min-h-12 items-center gap-3 rounded-xl px-3 text-[1.1em] font-semibold text-red-100 hover:bg-white/10"
+                    class="flex min-h-12 items-center gap-[0.5em] rounded-xl px-[0.5em] text-[1em] font-semibold text-red-100 hover:bg-white/10"
                     :active-class="item.exact ? '' : '!bg-white !text-brand-900'"
                     :exact-active-class="'!bg-white !text-brand-900'"
                 >
                     <Icon :name="item.icon" />
-                    <span class="flex-1">{{ item.label }}</span>
-                    <span v-if="item.badge" class="rounded-full bg-amber-400 px-2 text-sm font-bold text-black">{{ item.badge }}</span>
+                    <span class="min-w-0 flex-1 break-words leading-tight">{{ item.label }}</span>
+                    <span v-if="item.badge" class="shrink-0 rounded-full bg-amber-400 px-[0.45em] text-[0.8em] font-bold text-black">{{ item.badge }}</span>
                 </RouterLink>
             </nav>
-            <div class="mt-4 flex items-center gap-3 rounded-xl bg-white/10 p-3">
-                <Avatar :user="store.user" />
-                <div class="min-w-0 flex-1">
-                    <div class="truncate font-semibold">{{ store.user?.name }}</div>
-                    <div class="text-sm text-red-200">{{ store.user?.role_label }}</div>
+            <!-- Full name and role always visible: they wrap instead of being cut; "Выйти" gets its own line. -->
+            <div class="mt-[0.8em] rounded-xl bg-white/10 p-[0.6em]">
+                <div class="flex items-center gap-[0.6em]">
+                    <Avatar :user="store.user" class="!h-[2.4em] !w-[2.4em] !text-[0.95em]" />
+                    <div class="min-w-0 flex-1 leading-tight">
+                        <div class="break-words font-semibold">{{ store.user?.name }}</div>
+                        <div class="mt-0.5 break-words text-[0.85em] text-red-200">{{ store.user?.role_label }}</div>
+                    </div>
                 </div>
-                <button class="rounded-lg p-2 hover:bg-white/10" :aria-label="$t('Выйти')" :title="$t('Выйти')" @click="logout">
-                    <Icon name="log-out" />
+                <button class="mt-2 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg font-semibold hover:bg-white/10" @click="logout">
+                    <Icon name="log-out" /> {{ $t('Выйти') }}
                 </button>
             </div>
         </aside>
@@ -131,15 +135,17 @@ function openUrgent() {
 
             <!-- Mobile burger menu -->
             <div v-if="menuOpen" class="fixed inset-0 z-50 flex justify-end bg-black/50 md:hidden" @click.self="closeMenu">
-                <nav id="mobile-menu" ref="menuPanel" class="flex h-full w-full max-w-sm flex-col overflow-y-auto bg-white p-4 shadow-2xl"
+                <!-- Sizes in em: the menu font is capped, so avatar and buttons must not grow with the global text size. -->
+                <nav id="mobile-menu" ref="menuPanel" class="flex h-full w-full max-w-sm flex-col overflow-y-auto bg-white p-[0.8em] shadow-2xl"
                      :style="{ fontSize: 'min(1.125rem, 6vw)', overflowWrap: 'normal' }" :aria-label="$t('Дополнительное меню')">
-                    <div class="mb-4 flex items-center gap-3">
-                        <Avatar :user="store.user" />
+                    <div class="mb-[0.8em] flex items-start gap-[0.6em]">
+                        <Avatar :user="store.user" class="!h-[2.4em] !w-[2.4em] !text-[0.95em]" />
                         <div class="min-w-0 flex-1">
                             <div class="font-bold leading-tight">{{ store.user?.name }}</div>
-                            <div class="text-slate-600" style="font-size: 0.85em">{{ store.user?.role_label }} · {{ store.user?.family?.name }}</div>
+                            <div class="text-slate-600" style="font-size: 0.85em">{{ store.user?.role_label }}</div>
+                            <div class="text-slate-600" style="font-size: 0.85em">{{ store.user?.family?.name }}</div>
                         </div>
-                        <button class="btn-ghost shrink-0 px-3" :aria-label="$t('Закрыть меню')" @click="closeMenu"><Icon name="x" /></button>
+                        <button class="btn-ghost !min-h-[2.4em] shrink-0 !px-[0.5em]" :aria-label="$t('Закрыть меню')" @click="closeMenu"><Icon name="x" /></button>
                     </div>
                     <RouterLink v-for="item in secondary" :key="item.to" :to="item.to"
                                 class="flex min-h-14 items-center gap-3 rounded-xl px-3 py-2 font-semibold leading-tight text-slate-800 hover:bg-slate-100"
