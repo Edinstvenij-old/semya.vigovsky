@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue';
 import { api } from '../api';
 import CheckinButtons from '../components/CheckinButtons.vue';
 import EmptyState from '../components/EmptyState.vue';
+import SafetyCheckCard from '../components/SafetyCheckCard.vue';
 import Icon from '../components/Icon.vue';
 import StatusCard from '../components/StatusCard.vue';
 import { date, dueText, daysUntil } from '../format';
@@ -35,6 +36,8 @@ const tiles = computed(() => [
 <template>
     <div class="space-y-6">
         <h1 class="page-title">{{ greeting }}, {{ store.user.name.split(' ')[0] }}!</h1>
+
+        <SafetyCheckCard @changed="load" />
 
         <!-- Simple mode: four huge tiles -->
         <div v-if="simpleMode()" class="grid grid-cols-2 gap-4">

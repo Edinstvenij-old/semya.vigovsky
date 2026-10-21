@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Checkin;
 use App\Models\FamilyMember;
 use App\Models\Trip;
-use App\Services\Notifier;
+use App\Services\Checkins;
 use App\Support\FamilyContext;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,7 +15,7 @@ use Illuminate\Validation\Rule;
 
 class TravelController extends Controller
 {
-    public function __construct(private FamilyContext $context, private Notifier $notifier) {}
+    public function __construct(private FamilyContext $context, private Checkins $checkins) {}
 
     public function checkinTypes(): JsonResponse
     {
@@ -50,18 +50,8 @@ class TravelController extends Controller
             'lng' => ['nullable', 'numeric', 'between:-180,180'],
         ]);
 
-        $checkin = Checkin::create($data + ['user_id' => $request->user()->id]);
-        $checkin->load('user:id,name,avatar_color', 'trip:id,title');
-
         // Logistics statuses are urgent: they arrive with sound.
-        $this->notifier->send(
-            $checkin->family_id,
-            'logistics',
-            "{$request->user()->name}: {$checkin->label}",
-            trim(($checkin->type !== CheckinType::Custom ? ($checkin->note ?? '') : '').($checkin->trip ? " · {$checkin->trip->title}" : ''), ' ·') ?: null,
-            '/travel',
-            $request->user(),
-        );
+        $checkin = $this->checkins->record($request->user(), CheckinType::from($data['type']), collect($data)->except('type')->all());
 
         return response()->json($checkin, 201);
     }

@@ -8,6 +8,8 @@ namespace App\Enums;
  */
 enum CheckinType: string
 {
+    case Safe = 'safe';
+    case Shelter = 'shelter';
     case LeftHome = 'left_home';
     case ToAirport = 'to_airport';
     case AtAirport = 'at_airport';
@@ -25,6 +27,8 @@ enum CheckinType: string
     {
         return match ($this) {
             // Gender-neutral wording: the same label reads correctly for every family member.
+            self::Safe => 'Всё хорошо, я в безопасности',
+            self::Shelter => 'В укрытии',
             self::LeftHome => 'Выхожу из дома',
             self::ToAirport => 'Еду в аэропорт',
             self::AtAirport => 'В аэропорту / на вокзале',
@@ -43,6 +47,8 @@ enum CheckinType: string
     public function icon(): string
     {
         return match ($this) {
+            self::Safe => 'circle-check',
+            self::Shelter => 'shield',
             self::LeftHome => 'door-open',
             self::ToAirport => 'car',
             self::AtAirport => 'building-2',

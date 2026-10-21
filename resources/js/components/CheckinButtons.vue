@@ -9,7 +9,7 @@ const props = defineProps({ trips: { type: Array, default: () => [] }, compact: 
 const emit = defineEmits(['done']);
 
 // The most used statuses first; the rest are behind "Другой статус".
-const PRIMARY = ['to_airport', 'border_crossed', 'arrived', 'back_home'];
+const PRIMARY = ['safe', 'shelter', 'to_airport', 'border_crossed', 'arrived', 'back_home'];
 
 const types = ref([]);
 const showAll = ref(false);
@@ -63,7 +63,7 @@ async function send() {
 
 <template>
     <div>
-        <div class="grid grid-cols-2 gap-3" :class="compact ? '' : 'lg:grid-cols-4'">
+        <div class="grid grid-cols-2 gap-3" :class="compact ? '' : 'lg:grid-cols-3'">
             <button
                 v-for="t in types.filter((t) => PRIMARY.includes(t.value))"
                 :key="t.value"

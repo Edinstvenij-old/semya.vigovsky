@@ -4,7 +4,7 @@ import {
     CircleCheck, ClipboardList, Clock, Copy, DatabaseBackup, Download, DoorOpen, Ellipsis, ExternalLink, Eye,
     FileText, Folder, Home, House, KeyRound, Link, ListChecks, LogOut, MapPin, Menu, MessageCircle, MessageSquare,
     Paperclip, Pencil, Pin, Plane, PlaneLanding, PlaneTakeoff, Plug, Plus, RefreshCw, Search, Send, Settings,
-    ShieldCheck, ShoppingCart, Siren, Trash2, TrainFront, UserPlus, Users, Wrench, X, Zap, Filter, Droplets,
+    Shield, ShieldCheck, ShoppingCart, Siren, Trash2, TrainFront, UserPlus, Users, Wrench, X, Zap, Filter, Droplets,
     Camera, Lock, Image,
 } from 'lucide-vue-next';
 import { computed } from 'vue';
@@ -18,7 +18,7 @@ const icons = {
     'key-round': KeyRound, link: Link, 'list-checks': ListChecks, 'log-out': LogOut, 'map-pin': MapPin, menu: Menu,
     'message-circle': MessageCircle, 'message-square': MessageSquare, paperclip: Paperclip, pencil: Pencil, pin: Pin,
     plane: Plane, 'plane-landing': PlaneLanding, 'plane-takeoff': PlaneTakeoff, plug: Plug, plus: Plus,
-    'refresh-cw': RefreshCw, search: Search, send: Send, settings: Settings, 'shield-check': ShieldCheck,
+    'refresh-cw': RefreshCw, search: Search, send: Send, settings: Settings, shield: Shield, 'shield-check': ShieldCheck,
     'shopping-cart': ShoppingCart, siren: Siren, trash: Trash2, 'train-front': TrainFront, 'user-plus': UserPlus,
     users: Users, wrench: Wrench, x: X, zap: Zap, filter: Filter, droplets: Droplets, camera: Camera, lock: Lock,
     image: Image,

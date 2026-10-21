@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\MaintenanceController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PasswordResetController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\SafetyController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\ThreadController;
 use App\Http\Controllers\Api\TravelController;
@@ -61,6 +62,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('push/subscribe', [NotificationController::class, 'subscribe']);
         Route::post('push/unsubscribe', [NotificationController::class, 'unsubscribe']);
         Route::post('threads/{thread}/read', [ThreadController::class, 'markRead']);
+        Route::get('safety-checks/active', [SafetyController::class, 'active']);
+        Route::post('safety-checks/{check}/respond', [SafetyController::class, 'respond']); // viewers answer too
 
         // Everything below: GET for everyone, writes for admin/member only.
         Route::middleware('can-write')->group(function () {
@@ -93,6 +96,9 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::patch('maintenance/{item}', [MaintenanceController::class, 'update']);
             Route::delete('maintenance/{item}', [MaintenanceController::class, 'destroy']);
             Route::post('maintenance/{item}/complete', [MaintenanceController::class, 'complete']);
+
+            Route::post('safety-checks', [SafetyController::class, 'store']);
+            Route::post('safety-checks/{check}/close', [SafetyController::class, 'close']);
 
             Route::get('checkin-types', [TravelController::class, 'checkinTypes']);
             Route::get('checkins', [TravelController::class, 'checkins']);

@@ -146,6 +146,13 @@ function openUrgent() {
                 </nav>
             </div>
 
+            <!-- Unanswered "is everyone OK?" roll call: visible on every page until answered -->
+            <RouterLink v-if="store.counts.safety_pending && route.path !== '/'" to="/" role="alert"
+                        class="sticky top-16 z-20 m-3 flex items-center gap-3 rounded-2xl bg-red-700 p-4 text-white shadow-lg md:top-3">
+                <Icon name="shield" size="1.75em" />
+                <span class="flex-1"><b class="block text-lg">Все ли в порядке?</b>Семья ждёт вашего ответа — нажмите здесь</span>
+            </RouterLink>
+
             <!-- Urgent status banner (in-app, while the app is open) -->
             <div v-if="store.urgentBanner" role="alert" class="sticky top-14 z-20 m-3 flex items-center gap-3 rounded-2xl bg-amber-400 p-4 text-black shadow-lg md:top-3">
                 <Icon name="bell-ring" size="1.75em" />

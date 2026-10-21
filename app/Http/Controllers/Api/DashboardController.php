@@ -8,6 +8,7 @@ use App\Models\FamilyMember;
 use App\Models\FamilyNotification;
 use App\Models\MaintenanceItem;
 use App\Models\Message;
+use App\Models\SafetyCheck;
 use App\Models\Task;
 use App\Models\Thread;
 use App\Support\FamilyContext;
@@ -63,6 +64,10 @@ class DashboardController extends Controller
             'threads' => Thread::count(),
             'open_tasks' => Task::where('status', '!=', 'done')->count(),
             'overdue_maintenance' => MaintenanceItem::where('next_due_on', '<', today())->count(),
+            // Open "is everyone OK?" roll call this user has not answered yet.
+            'safety_pending' => SafetyCheck::open()
+                ->whereDoesntHave('responses', fn ($q) => $q->where('user_id', $userId))
+                ->latest('id')->value('id'),
             'server_time' => now()->toIso8601String(),
         ]);
     }
