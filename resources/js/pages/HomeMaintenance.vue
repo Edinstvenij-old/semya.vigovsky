@@ -5,7 +5,7 @@ import Avatar from '../components/Avatar.vue';
 import EmptyState from '../components/EmptyState.vue';
 import Icon from '../components/Icon.vue';
 import Modal from '../components/Modal.vue';
-import { date, daysUntil, dueText, MAINTENANCE_KINDS, money, num } from '../format';
+import { date, daysUntil, dueText, MAINTENANCE_KINDS, money, monthYear, num } from '../format';
 import { loadMembers, store, toast } from '../store';
 
 const tab = ref('list');
@@ -111,7 +111,7 @@ const weeks = computed(() => {
     return Array.from({ length: days.length / 7 }, (_, i) => days.slice(i * 7, i * 7 + 7));
 });
 
-const monthLabel = computed(() => new Date(month.value + '-01T00:00:00').toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' }));
+const monthLabel = computed(() => monthYear(month.value + '-01T00:00:00'));
 
 function shiftMonth(delta) {
     const d = new Date(month.value + '-01T00:00:00');
@@ -176,7 +176,7 @@ const agenda = computed(() => calendar.value.events.filter((e) => e.date.startsW
         <div v-else class="card">
             <div class="mb-4 flex items-center justify-between">
                 <button class="btn-ghost px-3" aria-label="Предыдущий месяц" @click="shiftMonth(-1)"><Icon name="chevron-left" /></button>
-                <h2 class="text-xl font-bold capitalize">{{ monthLabel }}</h2>
+                <h2 class="text-xl font-bold">{{ monthLabel }}</h2>
                 <button class="btn-ghost px-3" aria-label="Следующий месяц" @click="shiftMonth(1)"><Icon name="chevron-right" /></button>
             </div>
             <div class="hidden md:block">

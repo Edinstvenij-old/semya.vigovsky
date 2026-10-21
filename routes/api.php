@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\FamilyController;
 use App\Http\Controllers\Api\MaintenanceController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PasswordResetController;
+use App\Http\Controllers\Api\PhotoController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\SafetyController;
 use App\Http\Controllers\Api\ShoppingController;
@@ -87,6 +88,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('tasks/{task}/attachments', [TaskController::class, 'upload']);
             Route::post('tasks/{task}/thread', [TaskController::class, 'thread']);
 
+            Route::get('photos', [PhotoController::class, 'index']);
             Route::get('attachments/{attachment}', [AttachmentController::class, 'show']);
             Route::get('attachments/{attachment}/thumb', [AttachmentController::class, 'thumb']);
             Route::delete('attachments/{attachment}', [AttachmentController::class, 'destroy']);

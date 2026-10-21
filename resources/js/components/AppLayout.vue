@@ -21,6 +21,7 @@ const nav = computed(() => [
 
 const secondary = computed(() => [
     { to: '/notifications', label: 'Уведомления', icon: 'bell', badge: store.counts.unread_notifications },
+    { to: '/photos', label: 'Фотоальбом', icon: 'image' },
     { to: '/shopping', label: 'Список покупок', icon: 'shopping-cart', badge: store.counts.shopping_open },
     { to: '/documents', label: 'Билеты и брони', icon: 'lock' },
     { to: '/family', label: 'Семья', icon: 'users' },

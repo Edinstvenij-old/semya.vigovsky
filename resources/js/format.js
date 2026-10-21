@@ -5,6 +5,12 @@ export function date(value) {
     return new Date(value).toLocaleDateString(locale, { day: 'numeric', month: 'long' });
 }
 
+/** "Октябрь 2026" — month heading (CSS capitalize would also turn "г." into "Г."). */
+export function monthYear(value) {
+    const s = new Date(value).toLocaleDateString(locale, { month: 'long', year: 'numeric' }).replace(/\s*г\.$/, '');
+    return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 export function dateTime(value) {
     if (!value) return '';
     return new Date(value).toLocaleString(locale, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });

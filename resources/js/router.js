@@ -11,6 +11,7 @@ const routes = [
     { path: '/', component: () => import('./pages/Dashboard.vue'), meta: { title: 'Главная' } },
     { path: '/tasks', component: () => import('./pages/Tasks.vue'), meta: { title: 'Задачи' } },
     { path: '/tasks/:id', component: () => import('./pages/TaskDetail.vue'), meta: { title: 'Задача' } },
+    { path: '/photos', component: () => import('./pages/Photos.vue'), meta: { title: 'Фотоальбом' } },
     { path: '/shopping', component: () => import('./pages/Shopping.vue'), meta: { title: 'Покупки' } },
     { path: '/home', component: () => import('./pages/HomeMaintenance.vue'), meta: { title: 'Дом и обслуживание' } },
     { path: '/travel', component: () => import('./pages/Travel.vue'), meta: { title: 'Поездки' } },

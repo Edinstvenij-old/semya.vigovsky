@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Attachment;
 use App\Models\FamilyMember;
 use App\Models\Message;
 use App\Models\Thread;
@@ -85,7 +86,7 @@ class ThreadController extends Controller
     /** Messages, newest page by default; ?after=<id> returns only new ones (polling). */
     public function messages(Request $request, Thread $thread): JsonResponse
     {
-        $query = $thread->messages()->with('user:id,name,avatar_color');
+        $query = $thread->messages()->with('user:id,name,avatar_color', 'attachments');
 
         if ($after = $request->integer('after')) {
             $messages = $query->where('id', '>', $after)->orderBy('id')->limit(200)->get();
@@ -105,9 +106,17 @@ class ThreadController extends Controller
 
     public function storeMessage(Request $request, Thread $thread): JsonResponse
     {
-        $body = $request->validate(['body' => ['required', 'string', 'max:5000']])['body'];
+        $request->validate([
+            'body' => ['nullable', 'required_without:files', 'string', 'max:5000'],
+            'files' => ['sometimes', 'array', 'max:10'],
+            'files.*' => ['file', 'max:'.config('familyhub.max_upload_kb'), 'mimes:jpg,jpeg,png,webp,heic,heif,gif'],
+            'thumbs' => ['sometimes', 'array'],
+            'thumbs.*' => ['file', 'max:1024', 'mimes:jpg,jpeg,webp'],
+        ]);
 
-        return response()->json($this->postMessage($thread, $request->user(), $body)->load('user:id,name,avatar_color'), 201);
+        $message = $this->postMessage($thread, $request->user(), (string) $request->input('body', ''), $request->file('files', []), $request->file('thumbs', []));
+
+        return response()->json($message->load('user:id,name,avatar_color', 'attachments'), 201);
     }
 
     public function destroyMessage(Request $request, Thread $thread, Message $message): JsonResponse
@@ -145,9 +154,12 @@ class ThreadController extends Controller
         return response()->json(['ok' => true]);
     }
 
-    private function postMessage(Thread $thread, User $author, string $body): Message
+    private function postMessage(Thread $thread, User $author, string $body, array $files = [], array $thumbs = []): Message
     {
         $message = $thread->messages()->create(['user_id' => $author->id, 'body' => $body]);
+        foreach ($files as $i => $file) {
+            Attachment::store($message, $file, 'other', $author->id, $thumbs[$i] ?? null);
+        }
         $thread->update(['last_message_at' => now()]);
 
         DB::table('thread_reads')->updateOrInsert(
@@ -162,7 +174,7 @@ class ThreadController extends Controller
 
         $this->notifier->send(
             $thread->family_id, 'chat', "{$author->name} в «{$thread->title}»",
-            Str::limit($body, 140), "/threads/{$thread->id}", $author, $recipients,
+            $body !== '' ? Str::limit($body, 140) : '📷 Фото', "/threads/{$thread->id}", $author, $recipients,
         );
 
         return $message;
